@@ -56,10 +56,11 @@ async function loadUserDetails(userId) {
     }
 
     const userData = doc.data();
+    currentUserData = userData; // Store for modal use
 
-    // Set user basic info
+    // ✅ Fixed: Set user basic info - Changed photoUrl1 to photoUrl
     const photoUrl =
-      userData.photoUrl1 ||
+      userData.photoUrl ||
       "https://ui-avatars.com/api/?name=" +
         encodeURIComponent(userData.fullName || "User") +
         "&background=random";
@@ -72,10 +73,15 @@ async function loadUserDetails(userId) {
     document.getElementById("userEmail").textContent = userData.email || "N/A";
 
     const status = userData.status || "active";
+    const isSuspended = userData.isSuspended || false;
+
     document.getElementById("userStatus").innerHTML =
-      status === "active"
-        ? '<span class="badge bg-success">Active</span>'
-        : '<span class="badge bg-warning">Suspended</span>';
+      status === "suspended" || isSuspended
+        ? '<span class="badge bg-warning">Suspended</span>'
+        : '<span class="badge bg-success">Active</span>';
+
+    // Update suspend button text based on current status
+    updateSuspendButton(status === "suspended" || isSuspended);
 
     // Load assessments
     const assessmentsSnapshot = await db
@@ -330,75 +336,6 @@ function editUser() {
 
 // Global variable to store current user data for modal
 let currentUserData = null;
-
-// Load user details - UPDATE THIS FUNCTION
-async function loadUserDetails(userId) {
-  const db = firebase.firestore();
-
-  try {
-    const doc = await db.collection("users").doc(userId).get();
-
-    if (!doc.exists) {
-      alert("User not found");
-      window.location.href = "users.html";
-      return;
-    }
-
-    const userData = doc.data();
-    currentUserData = userData; // Store for modal use
-
-    // Set user basic info
-    const photoUrl =
-      userData.photoUrl1 ||
-      "https://ui-avatars.com/api/?name=" +
-        encodeURIComponent(userData.fullName || "User") +
-        "&background=random";
-
-    document.getElementById("userImage").src = photoUrl;
-    document.getElementById("userName").textContent =
-      userData.fullName || "N/A";
-    document.getElementById("userId").textContent = userData.userId || userId;
-    document.getElementById("userRole").textContent = userData.role || "User";
-    document.getElementById("userEmail").textContent = userData.email || "N/A";
-
-    const status = userData.status || "active";
-    const isSuspended = userData.isSuspended || false;
-
-    document.getElementById("userStatus").innerHTML =
-      status === "suspended" || isSuspended
-        ? '<span class="badge bg-warning">Suspended</span>'
-        : '<span class="badge bg-success">Active</span>';
-
-    // Update suspend button text based on current status
-    updateSuspendButton(status === "suspended" || isSuspended);
-
-    // Load assessments
-    const assessmentsSnapshot = await db
-      .collection("users")
-      .doc(userId)
-      .collection("assessments")
-      .orderBy("timestamp", "desc")
-      .get();
-
-    document.getElementById("userAssessments").textContent =
-      assessmentsSnapshot.size;
-
-    allAssessments = [];
-    assessmentsSnapshot.forEach((doc) => {
-      allAssessments.push({
-        id: doc.id,
-        ...doc.data(),
-      });
-    });
-
-    renderAssessments();
-    renderPagination();
-  } catch (error) {
-    console.error("Error loading user:", error);
-    alert("Error loading user details");
-    window.location.href = "users.html";
-  }
-}
 
 // Update suspend button based on user status
 function updateSuspendButton(isSuspended) {

@@ -18,12 +18,10 @@
         position: relative;
       }
 
-      /* Prevent horizontal scroll */
       html {
         overflow-x: hidden;
       }
 
-      /* Fixed Sidebar Styles */
       .sidebar-custom {
         position: fixed;
         top: 0;
@@ -37,7 +35,6 @@
         transition: transform 0.3s ease;
       }
 
-      /* Main Content Adjustment */
       .main-content-wrapper {
         margin-left: 250px;
         min-height: 100vh;
@@ -45,7 +42,6 @@
         width: calc(100% - 250px);
       }
 
-      /* Navigation Links */
       .nav-link-custom {
         display: flex;
         align-items: center;
@@ -82,12 +78,10 @@
         color: #dc3545;
       }
 
-      /* Mobile Menu Toggle */
       .mobile-menu-toggle {
         display: none;
       }
 
-      /* Sidebar Overlay */
       .sidebar-overlay {
         position: fixed;
         top: 0;
@@ -99,7 +93,51 @@
         display: none;
       }
 
-      /* Responsive Design */
+      /* ✅ SIMPLE: Photo Only - No Initials */
+      .avatar-container {
+        display: inline-block;
+        width: 80px;
+        height: 80px;
+        margin-bottom: 15px;
+      }
+
+      #userAvatarImg {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: 3px solid #dee2e6;
+        object-fit: cover;
+        display: block;
+        transition: border-color 0.3s ease;
+      }
+
+      #userAvatarImg:hover {
+        border-color: #007bff;
+      }
+
+      .photo-controls {
+        margin-top: 15px;
+      }
+
+      .photo-controls .btn {
+        margin-right: 8px;
+        margin-bottom: 8px;
+      }
+
+      .photo-info {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 5px;
+      }
+
+      #uploadProgress {
+        transition: opacity 0.3s ease;
+      }
+
+      #progressBar {
+        transition: width 0.3s ease;
+      }
+
       @media (max-width: 992px) {
         .sidebar-custom {
           transform: translateX(-100%);
@@ -136,16 +174,24 @@
         .sidebar-custom.show {
           transform: translateX(0);
         }
+
+        .avatar-container,
+        #userAvatarImg {
+          width: 60px !important;
+          height: 60px !important;
+        }
+
+        .photo-controls .btn {
+          width: 100%;
+          margin-bottom: 10px;
+        }
       }
     </style>
   </head>
   <body>
-    <!-- Sidebar Overlay for Mobile -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- Sidebar -->
     <div class="sidebar-custom d-flex flex-column" id="sidebar">
-      <!-- Logo Section -->
       <div
         class="text-center py-4 border-bottom border-secondary border-opacity-25"
       >
@@ -158,7 +204,6 @@
         <small class="text-white-50">Admin Panel</small>
       </div>
 
-      <!-- Navigation Menu -->
       <ul class="nav flex-column px-3 py-3 flex-grow-1">
         <li class="nav-item mb-2">
           <a href="dashboard.html" class="nav-link-custom">
@@ -180,10 +225,7 @@
         </li>
       </ul>
 
-      <!-- Bottom Menu -->
-      <div
-        class="px-3 pb-3 border-top border-secondary border-opacity-25 pt-3"
-      >
+      <div class="px-3 pb-3 border-top border-secondary border-opacity-25 pt-3">
         <a href="profile.html" class="nav-link-custom mb-2">
           <i class="bi bi-person-circle"></i>
           <span>Profile</span>
@@ -195,9 +237,7 @@
       </div>
     </div>
 
-    <!-- Main Content -->
     <div class="main-content-wrapper p-4 bg-light">
-      <!-- Mobile Menu Toggle Button -->
       <button
         class="btn btn-primary mobile-menu-toggle mb-3"
         id="sidebarToggle"
@@ -206,15 +246,15 @@
         <i class="bi bi-list fs-5"></i> Menu
       </button>
 
-      <!-- Back Button -->
       <div class="mb-3">
         <button onclick="goBack()" class="btn btn-outline-secondary btn-sm">
           <i class="bi bi-arrow-left"></i> Back to User Details
         </button>
       </div>
 
-      <!-- Page Header -->
-      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+      <div
+        class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3"
+      >
         <div>
           <h2 class="mb-1">Edit User Profile</h2>
           <small class="text-muted"
@@ -224,38 +264,77 @@
       </div>
 
       <div class="row">
-        <!-- Left Column - Edit Form -->
         <div class="col-lg-8">
-          <!-- Profile Picture -->
+          <!-- ✅ Photo Only - NO INITIALS -->
           <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
-              <h5 class="card-title mb-3">Profile Picture</h5>
-              <div class="d-flex align-items-center">
-                <div
-                  id="userAvatar"
-                  class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+              <h5 class="card-title mb-3">
+                <i class="bi bi-person-circle"></i> Profile Picture
+              </h5>
+
+              <!-- Avatar Container - PHOTO ONLY -->
+              <div class="avatar-container mb-3">
+                <img
+                  id="userAvatarImg"
+                  src="https://via.placeholder.com/80/dee2e6/6c757d?text=No+Photo"
+                  alt="Profile Photo"
+                  width="80"
+                  height="80"
                   style="
-                    width: 80px;
-                    height: 80px;
-                    font-size: 32px;
-                    font-weight: bold;
+                    border: 3px solid #dee2e6;
+                    border-radius: 50%;
+                    object-fit: cover;
                   "
-                >
-                  JS
+                />
+              </div>
+
+              <div class="photo-controls">
+                <div class="mb-2">
+                  <label
+                    for="profilePhotoInput"
+                    class="form-label d-block mb-1"
+                  >
+                    Upload new profile photo (JPG, PNG, max 2MB)
+                  </label>
+
+                  <input
+                    type="file"
+                    class="form-control d-none"
+                    id="profilePhotoInput"
+                    accept="image/jpeg,image/png,image/jpg"
+                  />
+
+                  <label
+                    for="profilePhotoInput"
+                    class="btn btn-outline-primary"
+                  >
+                    <i class="bi bi-cloud-upload"></i> Choose Photo
+                  </label>
+
+                  <button
+                    type="button"
+                    id="removePhotoBtn"
+                    class="btn btn-outline-danger ms-2"
+                    style="display: none"
+                  >
+                    <i class="bi bi-trash"></i> Remove Photo
+                  </button>
                 </div>
-                <div class="ms-3">
-                  <p class="mb-1 text-muted">
-                    Profile picture is generated from user's name
-                  </p>
+
+                <div class="photo-info">
+                  <i class="bi bi-info-circle"></i>
+                  Profile photos help identify users in the admin dashboard.
+                  Recommended size: 200x200 pixels.
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Personal Information Form -->
           <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
-              <h5 class="card-title mb-3">Personal Information</h5>
+              <h5 class="card-title mb-3">
+                <i class="bi bi-person"></i> Personal Information
+              </h5>
               <form id="editUserForm">
                 <div class="mb-3">
                   <label for="fullName" class="form-label"
@@ -286,6 +365,7 @@
                   <select class="form-select" id="role">
                     <option value="User">User</option>
                     <option value="Admin">Admin</option>
+                    <option value="Inspector">Inspector</option>
                   </select>
                 </div>
 
@@ -299,9 +379,9 @@
                     rows="3"
                     placeholder="Enter reason for editing this user's profile..."
                   ></textarea>
-                  <small class="text-muted"
-                    >This note will be saved in the activity log</small
-                  >
+                  <div class="form-text">
+                    This note will be saved in the activity log
+                  </div>
                 </div>
 
                 <div class="d-flex gap-2 flex-wrap">
@@ -321,11 +401,12 @@
           </div>
         </div>
 
-        <!-- Right Column - User Statistics -->
         <div class="col-lg-4">
           <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
-              <h5 class="card-title mb-3">User Statistics</h5>
+              <h5 class="card-title mb-3">
+                <i class="bi bi-bar-chart"></i> User Statistics
+              </h5>
               <div class="mb-3">
                 <small class="text-muted">USER ID</small>
                 <p class="mb-0 fw-bold text-break" id="userId">Loading...</p>
@@ -341,21 +422,50 @@
             </div>
           </div>
 
-          <!-- Important Notice -->
-          <div class="alert alert-warning" role="alert">
-            <h6 class="alert-heading">
-              <i class="bi bi-exclamation-triangle-fill"></i> Important Notice
-            </h6>
-            <p class="mb-0 small">
-              Changes to user account settings will be logged and may require
-              user verification.
-            </p>
+          <div
+            id="uploadProgress"
+            class="card border-0 shadow-sm mb-4"
+            style="display: none"
+          >
+            <div class="card-body">
+              <h6 class="card-title mb-2">
+                <i class="bi bi-cloud-upload"></i> Photo Upload Progress
+              </h6>
+              <div class="progress mb-2" style="height: 20px">
+                <div
+                  id="progressBar"
+                  class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+                  role="progressbar"
+                  style="width: 0%"
+                >
+                  0%
+                </div>
+              </div>
+              <div class="text-center">
+                <small class="text-muted" id="progressText"
+                  >Preparing upload...</small
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-info" role="alert">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-info-circle-fill fs-5 me-2 flex-shrink-0"></i>
+              <div>
+                <h6 class="alert-heading mb-1">Profile Photo Update</h6>
+                <p class="mb-0 small">
+                  Selected photos are automatically uploaded to secure cloud
+                  storage and will appear immediately in the admin dashboard
+                  after saving.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Toast Notification -->
     <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999">
       <div
         id="savedToast"
@@ -378,55 +488,54 @@
       </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/firebase-config.js"></script>
     <script src="js/edit-user.js"></script>
 
-    <!-- Sidebar Toggle Script -->
     <script>
-      const sidebarToggle = document.getElementById('sidebarToggle');
-      const sidebar = document.getElementById('sidebar');
-      const sidebarOverlay = document.getElementById('sidebarOverlay');
+      const sidebarToggle = document.getElementById("sidebarToggle");
+      const sidebar = document.getElementById("sidebar");
+      const sidebarOverlay = document.getElementById("sidebarOverlay");
 
-      // Toggle sidebar on mobile
       if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', function() {
-          sidebar.classList.toggle('show');
-          sidebarOverlay.classList.toggle('show');
-          document.body.style.overflow = sidebar.classList.contains('show') ? 'hidden' : '';
+        sidebarToggle.addEventListener("click", function () {
+          sidebar.classList.toggle("show");
+          sidebarOverlay.classList.toggle("show");
+          document.body.style.overflow = sidebar.classList.contains("show")
+            ? "hidden"
+            : "";
         });
       }
 
-      // Close sidebar when clicking overlay
       if (sidebarOverlay) {
-        sidebarOverlay.addEventListener('click', function() {
-          sidebar.classList.remove('show');
-          sidebarOverlay.classList.remove('show');
-          document.body.style.overflow = '';
+        sidebarOverlay.addEventListener("click", function () {
+          sidebar.classList.remove("show");
+          sidebarOverlay.classList.remove("show");
+          document.body.style.overflow = "";
         });
       }
 
-      // Close sidebar when clicking on a link (mobile only)
-      document.querySelectorAll('.sidebar-custom .nav-link-custom').forEach(link => {
-        link.addEventListener('click', function() {
-          if (window.innerWidth <= 992) {
-            sidebar.classList.remove('show');
-            sidebarOverlay.classList.remove('show');
-            document.body.style.overflow = '';
-          }
+      document
+        .querySelectorAll(".sidebar-custom .nav-link-custom")
+        .forEach((link) => {
+          link.addEventListener("click", function () {
+            if (window.innerWidth <= 992) {
+              sidebar.classList.remove("show");
+              sidebarOverlay.classList.remove("show");
+              document.body.style.overflow = "";
+            }
+          });
         });
-      });
 
-      // Handle window resize
-      window.addEventListener('resize', function() {
+      window.addEventListener("resize", function () {
         if (window.innerWidth > 992) {
-          sidebar.classList.remove('show');
-          sidebarOverlay.classList.remove('show');
-          document.body.style.overflow = '';
+          sidebar.classList.remove("show");
+          sidebarOverlay.classList.remove("show");
+          document.body.style.overflow = "";
         }
       });
     </script>

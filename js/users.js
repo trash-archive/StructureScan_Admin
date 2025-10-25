@@ -33,9 +33,9 @@ firebase.auth().onAuthStateChanged(function (user) {
       adminNameElem.textContent = displayName;
 
       // ✅ Display photo or initial
-      if (adminData.photoUrl1) {
+      if (adminData.photoUrl) {
         adminAvatar.innerHTML = `
-          <img src="${adminData.photoUrl1}" 
+          <img src="${adminData.photoUrl}" 
                alt="Admin Avatar" 
                class="rounded-circle" 
                width="40" height="40"
@@ -94,7 +94,7 @@ async function loadUsers() {
         id: doc.id,
         fullName: userData.fullName || "N/A",
         email: userData.email || "N/A",
-        photoUrl: userData.photoUrl1 || null,
+        photoUrl: userData.photoUrl || null, // ✅ Fixed: Changed from photoUrl1 to photoUrl
         assessmentCount: assessmentsSnapshot.size,
         status: userData.status || "active",
         userId: userData.userId || doc.id,
@@ -170,7 +170,9 @@ function renderUsers() {
              class="rounded-circle" 
              width="40" height="40"
              style="object-fit: cover;"
-             onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName)}'">
+             onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(
+               user.fullName
+             )}'">
       `;
     } else {
       const initial = user.fullName

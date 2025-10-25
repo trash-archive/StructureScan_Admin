@@ -18,12 +18,10 @@
         position: relative;
       }
 
-      /* Prevent horizontal scroll */
       html {
         overflow-x: hidden;
       }
 
-      /* Fixed Sidebar Styles */
       .sidebar-custom {
         position: fixed;
         top: 0;
@@ -37,7 +35,6 @@
         transition: transform 0.3s ease;
       }
 
-      /* Main Content Adjustment */
       .main-content-wrapper {
         margin-left: 250px;
         min-height: 100vh;
@@ -45,7 +42,6 @@
         width: calc(100% - 250px);
       }
 
-      /* Navigation Links */
       .nav-link-custom {
         display: flex;
         align-items: center;
@@ -82,12 +78,10 @@
         color: #dc3545;
       }
 
-      /* Mobile Menu Toggle */
       .mobile-menu-toggle {
         display: none;
       }
 
-      /* Sidebar Overlay */
       .sidebar-overlay {
         position: fixed;
         top: 0;
@@ -99,7 +93,33 @@
         display: none;
       }
 
-      /* Responsive Design */
+      /* Profile Photo Styles */
+      .avatar-container {
+        display: inline-block;
+        width: 80px;
+        height: 80px;
+        margin-bottom: 15px;
+      }
+
+      #userAvatarImg {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: 3px solid #dee2e6;
+        object-fit: cover;
+        display: block;
+        transition: border-color 0.3s ease;
+      }
+
+      #userAvatarImg:hover {
+        border-color: #007bff;
+      }
+
+      .photo-controls .btn {
+        margin-right: 8px;
+        margin-bottom: 8px;
+      }
+
       @media (max-width: 992px) {
         .sidebar-custom {
           transform: translateX(-100%);
@@ -136,16 +156,19 @@
         .sidebar-custom.show {
           transform: translateX(0);
         }
+
+        .avatar-container,
+        #userAvatarImg {
+          width: 60px !important;
+          height: 60px !important;
+        }
       }
     </style>
   </head>
   <body>
-    <!-- Sidebar Overlay for Mobile -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- Sidebar -->
     <div class="sidebar-custom d-flex flex-column" id="sidebar">
-      <!-- Logo Section -->
       <div
         class="text-center py-4 border-bottom border-secondary border-opacity-25"
       >
@@ -158,7 +181,6 @@
         <small class="text-white-50">Admin Panel</small>
       </div>
 
-      <!-- Navigation Menu -->
       <ul class="nav flex-column px-3 py-3 flex-grow-1">
         <li class="nav-item mb-2">
           <a href="dashboard.html" class="nav-link-custom">
@@ -180,10 +202,7 @@
         </li>
       </ul>
 
-      <!-- Bottom Menu -->
-      <div
-        class="px-3 pb-3 border-top border-secondary border-opacity-25 pt-3"
-      >
+      <div class="px-3 pb-3 border-top border-secondary border-opacity-25 pt-3">
         <a href="profile.html" class="nav-link-custom mb-2">
           <i class="bi bi-person-circle"></i>
           <span>Profile</span>
@@ -195,9 +214,7 @@
       </div>
     </div>
 
-    <!-- Main Content -->
     <div class="main-content-wrapper p-4 bg-light">
-      <!-- Mobile Menu Toggle Button -->
       <button
         class="btn btn-primary mobile-menu-toggle mb-3"
         id="sidebarToggle"
@@ -206,14 +223,12 @@
         <i class="bi bi-list fs-5"></i> Menu
       </button>
 
-      <!-- Back Button -->
       <div class="mb-3">
         <a href="users.html" class="btn btn-outline-secondary btn-sm">
           <i class="bi bi-arrow-left"></i> Back to User List
         </a>
       </div>
 
-      <!-- Page Header -->
       <div class="mb-4">
         <h2 class="mb-1">Add New User</h2>
         <p class="text-muted">
@@ -222,11 +237,63 @@
       </div>
 
       <div class="row">
-        <!-- Left Column - Form -->
         <div class="col-lg-7">
           <div class="card border-0 shadow-sm">
             <div class="card-body p-4">
               <form id="addUserForm">
+                <!-- ✅ Profile Photo Section -->
+                <div class="mb-4">
+                  <h6 class="mb-3 d-flex align-items-center">
+                    <i
+                      class="bi bi-camera-fill me-2 text-primary"
+                      style="font-size: 20px"
+                    ></i>
+                    Profile Photo (Optional)
+                  </h6>
+
+                  <div class="avatar-container mb-3">
+                    <img
+                      id="userAvatarImg"
+                      src="https://via.placeholder.com/80/dee2e6/6c757d?text=No+Photo"
+                      alt="Profile Photo Preview"
+                      width="80"
+                      height="80"
+                    />
+                  </div>
+
+                  <div class="photo-controls">
+                    <input
+                      type="file"
+                      class="form-control d-none"
+                      id="profilePhotoInput"
+                      accept="image/jpeg,image/png,image/jpg"
+                    />
+
+                    <label
+                      for="profilePhotoInput"
+                      class="btn btn-outline-primary btn-sm"
+                    >
+                      <i class="bi bi-cloud-upload"></i> Choose Photo
+                    </label>
+
+                    <button
+                      type="button"
+                      id="removePhotoBtn"
+                      class="btn btn-outline-danger btn-sm"
+                      style="display: none"
+                    >
+                      <i class="bi bi-trash"></i> Remove
+                    </button>
+
+                    <div class="mt-2">
+                      <small class="text-muted">
+                        <i class="bi bi-info-circle"></i>
+                        JPG or PNG, max 2MB
+                      </small>
+                    </div>
+                  </div>
+                </div>
+
                 <!-- User Information Section -->
                 <div class="mb-4">
                   <h6 class="mb-3 d-flex align-items-center">
@@ -349,7 +416,6 @@
           </div>
         </div>
 
-        <!-- Right Column - Instructions -->
         <div class="col-lg-5">
           <div class="card border-0 shadow-sm bg-light">
             <div class="card-body p-4">
@@ -363,35 +429,35 @@
                 <ul class="small mb-0">
                   <li>Full Name (First and Last Name)</li>
                   <li>Valid Email Address</li>
+                  <li>User Role</li>
                   <li>Password (Minimum 6 characters)</li>
                   <li>Password Confirmation</li>
                 </ul>
               </div>
 
               <div class="mb-4">
-                <p class="mb-2 fw-bold small">Password Requirements:</p>
+                <p class="mb-2 fw-bold small">Optional:</p>
                 <ul class="small mb-0">
-                  <li>Minimum 6 characters</li>
-                  <li>At least one uppercase letter</li>
-                  <li>At least one number</li>
-                  <li>Must match confirmation</li>
+                  <li>Profile Photo (JPG/PNG, max 2MB)</li>
                 </ul>
               </div>
 
               <div class="mb-4">
-                <p class="mb-2 fw-bold small">Plan Options:</p>
+                <p class="mb-2 fw-bold small">Available Roles:</p>
                 <ul class="small mb-0">
-                  <li>Free: 3 assessments</li>
-                  <li>Premium: Unlimited assessments</li>
+                  <li><strong>User:</strong> Basic access</li>
+                  <li><strong>Architect:</strong> Design permissions</li>
+                  <li><strong>Engineer:</strong> Technical access</li>
+                  <li><strong>Inspector:</strong> Assessment rights</li>
+                  <li><strong>Contractor:</strong> Build permissions</li>
                 </ul>
               </div>
 
               <div class="alert alert-info mb-0">
                 <p class="mb-0 small">
                   <i class="bi bi-lightbulb-fill me-2"></i>
-                  <strong>Note:</strong> New users will be created with
-                  "Active" status by default. They can log in immediately
-                  after account creation.
+                  <strong>Note:</strong> New users will be created with "Active"
+                  status. Profile photos are optional and can be added later.
                 </p>
               </div>
             </div>
@@ -400,7 +466,6 @@
       </div>
     </div>
 
-    <!-- Toast Notification -->
     <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999">
       <div
         id="savedToast"
@@ -423,55 +488,54 @@
       </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/firebase-config.js"></script>
     <script src="js/add-user.js"></script>
 
-    <!-- Sidebar Toggle Script -->
     <script>
-      const sidebarToggle = document.getElementById('sidebarToggle');
-      const sidebar = document.getElementById('sidebar');
-      const sidebarOverlay = document.getElementById('sidebarOverlay');
+      const sidebarToggle = document.getElementById("sidebarToggle");
+      const sidebar = document.getElementById("sidebar");
+      const sidebarOverlay = document.getElementById("sidebarOverlay");
 
-      // Toggle sidebar on mobile
       if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', function() {
-          sidebar.classList.toggle('show');
-          sidebarOverlay.classList.toggle('show');
-          document.body.style.overflow = sidebar.classList.contains('show') ? 'hidden' : '';
+        sidebarToggle.addEventListener("click", function () {
+          sidebar.classList.toggle("show");
+          sidebarOverlay.classList.toggle("show");
+          document.body.style.overflow = sidebar.classList.contains("show")
+            ? "hidden"
+            : "";
         });
       }
 
-      // Close sidebar when clicking overlay
       if (sidebarOverlay) {
-        sidebarOverlay.addEventListener('click', function() {
-          sidebar.classList.remove('show');
-          sidebarOverlay.classList.remove('show');
-          document.body.style.overflow = '';
+        sidebarOverlay.addEventListener("click", function () {
+          sidebar.classList.remove("show");
+          sidebarOverlay.classList.remove("show");
+          document.body.style.overflow = "";
         });
       }
 
-      // Close sidebar when clicking on a link (mobile only)
-      document.querySelectorAll('.sidebar-custom .nav-link-custom').forEach(link => {
-        link.addEventListener('click', function() {
-          if (window.innerWidth <= 992) {
-            sidebar.classList.remove('show');
-            sidebarOverlay.classList.remove('show');
-            document.body.style.overflow = '';
-          }
+      document
+        .querySelectorAll(".sidebar-custom .nav-link-custom")
+        .forEach((link) => {
+          link.addEventListener("click", function () {
+            if (window.innerWidth <= 992) {
+              sidebar.classList.remove("show");
+              sidebarOverlay.classList.remove("show");
+              document.body.style.overflow = "";
+            }
+          });
         });
-      });
 
-      // Handle window resize
-      window.addEventListener('resize', function() {
+      window.addEventListener("resize", function () {
         if (window.innerWidth > 992) {
-          sidebar.classList.remove('show');
-          sidebarOverlay.classList.remove('show');
-          document.body.style.overflow = '';
+          sidebar.classList.remove("show");
+          sidebarOverlay.classList.remove("show");
+          document.body.style.overflow = "";
         }
       });
     </script>

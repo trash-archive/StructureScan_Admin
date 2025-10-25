@@ -10,7 +10,6 @@ console.log(
   assessmentId
 );
 
-// Check if user is logged in and is admin
 firebase.auth().onAuthStateChanged(function (user) {
   if (!user) {
     window.location.href = "index.html";
@@ -27,7 +26,6 @@ firebase.auth().onAuthStateChanged(function (user) {
         window.location.href = "index.html";
         return;
       }
-      // Check parameters and load assessment
       if (userId && assessmentId) {
         console.log(
           "Loading assessment details for user:",
@@ -38,12 +36,11 @@ firebase.auth().onAuthStateChanged(function (user) {
         loadAssessmentDetails(userId, assessmentId);
       } else {
         alert("Invalid assessment parameters");
-        // Check where to go back
         const returnPage = sessionStorage.getItem("returnPage");
         const returnUserId = sessionStorage.getItem("returnUserId");
 
         if (returnPage === "user-detail" && returnUserId) {
-          window.location.href = `user-detail.html?userId=${encodeURIComponent(
+          window.location.href = `user-details.html?userId=${encodeURIComponent(
             returnUserId
           )}`;
         } else {
@@ -87,12 +84,10 @@ async function loadAssessmentDetails(userId, assessmentId) {
     const data = assessmentDoc.data();
     console.log("Full assessment data:", data);
 
-    // Assessment ID
     document.getElementById(
       "assessmentId"
     ).textContent = `Assessment ID: ${assessmentId}`;
 
-    // User info
     document.getElementById("userName").textContent =
       userData && userData.fullName ? userData.fullName : "N/A";
     document.getElementById("userEmail").textContent =
@@ -102,11 +97,9 @@ async function loadAssessmentDetails(userId, assessmentId) {
         ? formatDate(userData.createdAt.toDate())
         : "N/A";
 
-    // Assessment overview
     document.getElementById("assessmentName").textContent =
       data.assessmentName || data.buildingType || "N/A";
 
-    // Handle date or timestamp
     let subDate = null;
     if (data.timestamp) {
       if (typeof data.timestamp === "number" && data.timestamp > 1e10) {
@@ -130,14 +123,10 @@ async function loadAssessmentDetails(userId, assessmentId) {
         : subDate
       : "N/A";
 
-    // Building Information - CHECK BOTH ROOT AND NESTED LOCATIONS
-
-    // Overall Risk - most important, show prominently
     const overallRisk = data.overallRisk || "N/A";
     const riskElement = document.getElementById("overallRisk");
     if (riskElement) {
       riskElement.textContent = overallRisk;
-      // Add color coding based on risk level
       riskElement.className = "badge fs-5 ";
       if (overallRisk.toLowerCase().includes("high")) {
         riskElement.classList.add("bg-danger");
@@ -156,55 +145,46 @@ async function loadAssessmentDetails(userId, assessmentId) {
     document.getElementById("structureType").textContent =
       data.buildingType || "N/A";
 
-    // Number of Floors - check root first, then environmentalRisks
     document.getElementById("floors").textContent =
       data.floors ||
       (data.environmentalRisks && data.environmentalRisks.floors) ||
       "N/A";
 
-    // Construction Material - check root first, then environmentalRisks
     document.getElementById("material").textContent =
       data.material ||
       (data.environmentalRisks && data.environmentalRisks.material) ||
       "N/A";
 
-    // Foundation Type - check root first, then environmentalRisks
     document.getElementById("foundationType").textContent =
       data.foundation ||
       (data.environmentalRisks && data.environmentalRisks.foundation) ||
       "N/A";
 
-    // Environment - directly from root
     document.getElementById("environment").textContent =
       data.environment || "N/A";
 
-    // Year Built - from constructionYear
     document.getElementById("yearBuilt").textContent =
       data.constructionYear || "N/A";
 
-    // Last Renovation - from renovationYear
     document.getElementById("lastRenovation").textContent =
       data.renovationYear || "N/A";
 
-    // Occupancy Level - check root first, then environmentalRisks
     document.getElementById("occupancyLevel").textContent =
       data.occupancy ||
       (data.environmentalRisks && data.environmentalRisks.occupancy) ||
       "N/A";
 
-    // Additional Notes - check root first, then environmentalRisks
     document.getElementById("additionalNotes").textContent =
       data.notes ||
       (data.environmentalRisks && data.environmentalRisks.notes) ||
       "N/A";
 
-    // Previous Issues - from root array
     document.getElementById("previousIssues").textContent =
       Array.isArray(data.previousIssues) && data.previousIssues.length > 0
         ? data.previousIssues.join(", ")
         : "N/A";
 
-    // Load submitted images
+    loadRecommendations(data);
     await loadSubmittedImages(data, subDate);
 
     console.log("Assessment details loaded successfully");
@@ -219,7 +199,156 @@ async function loadAssessmentDetails(userId, assessmentId) {
   }
 }
 
-// Load submitted images from assessments array
+// ✅ FINAL: Display recommendations with inline labels
+function loadRecommendations(data) {
+  const recommendationsLoading = document.getElementById(
+    "recommendationsLoading"
+  );
+  const recommendationsContainer = document.getElementById(
+    "recommendationsContainer"
+  );
+  const recommendationsList = document.getElementById("recommendationsList");
+  const noRecommendationsMessage = document.getElementById(
+    "noRecommendationsMessage"
+  );
+
+  try {
+    console.log("🔍 Loading recommendations from assessments array");
+
+    if (
+      !data.assessments ||
+      !Array.isArray(data.assessments) ||
+      data.assessments.length === 0
+    ) {
+      console.log("❌ No assessments found");
+      recommendationsLoading.classList.add("d-none");
+      noRecommendationsMessage.classList.remove("d-none");
+      return;
+    }
+
+    console.log("✅ Found", data.assessments.length, "assessment(s)");
+
+    recommendationsList.innerHTML = "";
+
+    let totalActions = 0;
+
+    // Loop through each assessment (each image)
+    data.assessments.forEach((assessment, assessmentIndex) => {
+      console.log(`📋 Processing assessment ${assessmentIndex}:`, assessment);
+
+      const recommendations = assessment.recommendations;
+
+      if (
+        !recommendations ||
+        !Array.isArray(recommendations) ||
+        recommendations.length === 0
+      ) {
+        console.log(`⚠️ Assessment ${assessmentIndex} has no recommendations`);
+        return;
+      }
+
+      console.log(
+        `✅ Found ${recommendations.length} recommendation(s) in assessment ${assessmentIndex}`
+      );
+
+      // Loop through recommendations in this assessment
+      recommendations.forEach((recommendation, recIndex) => {
+        console.log(
+          `  📋 Processing recommendation ${recIndex}:`,
+          recommendation
+        );
+
+        // Get actions map - handle nested structure
+        let actionsMap = null;
+
+        if (recommendation["0"]) {
+          actionsMap = recommendation["0"];
+        } else {
+          actionsMap = recommendation;
+        }
+
+        console.log(`    🔍 Extracted actions map:`, actionsMap);
+
+        if (!actionsMap || !actionsMap.actions) {
+          console.log(`    ⚠️ No actions found in this recommendation`);
+          return;
+        }
+
+        // Extract properties - actions can be string or array
+        const actionsValue = actionsMap.actions;
+        const title = actionsMap.title || "Untitled";
+        const description = actionsMap.description || "No description";
+        const severity = actionsMap.severity || "LOW";
+
+        console.log(`      📌 Action:`, {
+          actions: actionsValue,
+          title,
+          description,
+          severity,
+        });
+
+        // Determine severity class
+        let severityClass = "severity-low";
+        const severityLower = String(severity).toLowerCase();
+
+        if (severityLower === "high") {
+          severityClass = "severity-high";
+        } else if (severityLower === "moderate" || severityLower === "medium") {
+          severityClass = "severity-moderate";
+        }
+
+        // Create inline-style recommendation card
+        const cardDiv = document.createElement("div");
+        cardDiv.className = `card recommendation-card ${severityClass} mb-3`;
+        cardDiv.innerHTML = `
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div class="flex-grow-1">
+                <p class="mb-2"><strong>Actions:</strong> ${
+                  Array.isArray(actionsValue)
+                    ? actionsValue.join(", ")
+                    : actionsValue
+                }</p>
+                <p class="mb-2"><strong>Description:</strong> ${description}</p>
+                <p class="mb-0"><strong>Title:</strong> ${title}</p>
+              </div>
+              <div class="text-end ms-3">
+                <strong>Severity:</strong><br>
+                <span class="severity-badge ${severityClass} mt-1">${severity.toUpperCase()}</span>
+              </div>
+            </div>
+          </div>
+        `;
+
+        recommendationsList.appendChild(cardDiv);
+        totalActions++;
+      });
+    });
+
+    console.log(`✅ Total actions displayed: ${totalActions}`);
+
+    if (totalActions === 0) {
+      console.log("⚠️ No actions were found in any recommendations");
+      recommendationsLoading.classList.add("d-none");
+      noRecommendationsMessage.classList.remove("d-none");
+      return;
+    }
+
+    recommendationsLoading.classList.add("d-none");
+    recommendationsContainer.classList.remove("d-none");
+
+    console.log("✅ Recommendations loaded successfully");
+  } catch (error) {
+    console.error("❌ Error loading recommendations:", error);
+    recommendationsLoading.classList.add("d-none");
+    noRecommendationsMessage.classList.remove("d-none");
+    noRecommendationsMessage.innerHTML = `
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      Error loading recommendations: ${error.message}
+    `;
+  }
+}
+
 async function loadSubmittedImages(data, assessmentDate) {
   const imagesLoading = document.getElementById("imagesLoading");
   const imagesContainer = document.getElementById("imagesContainer");
@@ -228,7 +357,6 @@ async function loadSubmittedImages(data, assessmentDate) {
   const analysisDateElement = document.getElementById("analysisDate");
 
   try {
-    // Check if assessments array exists
     if (
       !data.assessments ||
       !Array.isArray(data.assessments) ||
@@ -239,12 +367,9 @@ async function loadSubmittedImages(data, assessmentDate) {
       return;
     }
 
-    // Clear grid
     imagesGrid.innerHTML = "";
 
-    // Loop through assessments and create image cards
     data.assessments.forEach((assessment, index) => {
-      // Determine status text and class
       let statusText = "No issues detected";
       let statusClass = "status-no-issues";
 
@@ -265,17 +390,14 @@ async function loadSubmittedImages(data, assessmentDate) {
         }
       }
 
-      // Extract filename from imageUri
       const imageUri = assessment.imageUri || "";
       const filename = imageUri
         ? decodeURIComponent(imageUri.split("/").pop().split("?")[0])
         : `IMG_${String(index + 1).padStart(3, "0")}.jpg`;
 
-      // Create column
       const colDiv = document.createElement("div");
       colDiv.className = "col-6 col-sm-4 col-md-3 col-lg-2";
 
-      // Create image card
       colDiv.innerHTML = `
         <div class="image-card-item" onclick="openImageModal(${index}, '${imageUri}', '${filename}', '${statusText}', '${
         assessment.damageType || "N/A"
@@ -300,11 +422,9 @@ async function loadSubmittedImages(data, assessmentDate) {
       imagesGrid.appendChild(colDiv);
     });
 
-    // Show images container and hide loading
     imagesLoading.classList.add("d-none");
     imagesContainer.classList.remove("d-none");
 
-    // Update analysis date
     if (assessmentDate) {
       analysisDateElement.textContent = formatDateTime(assessmentDate);
     } else {
@@ -321,7 +441,6 @@ async function loadSubmittedImages(data, assessmentDate) {
   }
 }
 
-// Open image in modal
 function openImageModal(index, imageUrl, filename, status, damageType) {
   const modal = new bootstrap.Modal(document.getElementById("imageModal"));
   const modalImage = document.getElementById("modalPreviewImage");
@@ -330,7 +449,6 @@ function openImageModal(index, imageUrl, filename, status, damageType) {
 
   modalTitle.textContent = `Image ${index + 1} Details`;
 
-  // Set image with better error handling
   modalImage.onerror = function () {
     this.src = "https://via.placeholder.com/800x600?text=Image+Loading+Failed";
   };
@@ -384,20 +502,15 @@ function formatDateTime(date) {
   return `${dateStr} at ${displayHours}:${minutes} ${ampm}`;
 }
 
-// SMART BACK NAVIGATION - Returns to the correct page based on context
 function goBack() {
-  // Check if we came from user-details page
   const returnPage = sessionStorage.getItem("returnPage");
   const returnUserId = sessionStorage.getItem("returnUserId");
 
   if (returnPage === "user-detail" && returnUserId) {
-    // Clear session storage
     sessionStorage.removeItem("returnPage");
     sessionStorage.removeItem("returnUserId");
-    // Go back to user-details.html (with 's')
     window.location.href = `user-details.html?userId=${returnUserId}`;
   } else {
-    // Otherwise go to assessments list
     window.location.href = "assessments.html";
   }
 }
