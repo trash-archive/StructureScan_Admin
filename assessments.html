@@ -181,9 +181,7 @@
       </ul>
 
       <!-- Bottom Menu -->
-      <div
-        class="px-3 pb-3 border-top border-secondary border-opacity-25 pt-3"
-      >
+      <div class="px-3 pb-3 border-top border-secondary border-opacity-25 pt-3">
         <a href="profile.html" class="nav-link-custom mb-2">
           <i class="bi bi-person-circle"></i>
           <span>Profile</span>
@@ -207,7 +205,9 @@
       </button>
 
       <!-- Header -->
-      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+      <div
+        class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3"
+      >
         <div>
           <h2 class="mb-1">Assessment Management</h2>
           <small class="text-muted">View and manage all assessments</small>
@@ -301,45 +301,49 @@
 
     <!-- Sidebar Toggle Script -->
     <script>
-      const sidebarToggle = document.getElementById('sidebarToggle');
-      const sidebar = document.getElementById('sidebar');
-      const sidebarOverlay = document.getElementById('sidebarOverlay');
+      const sidebarToggle = document.getElementById("sidebarToggle");
+      const sidebar = document.getElementById("sidebar");
+      const sidebarOverlay = document.getElementById("sidebarOverlay");
 
       // Toggle sidebar on mobile
       if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', function() {
-          sidebar.classList.toggle('show');
-          sidebarOverlay.classList.toggle('show');
-          document.body.style.overflow = sidebar.classList.contains('show') ? 'hidden' : '';
+        sidebarToggle.addEventListener("click", function () {
+          sidebar.classList.toggle("show");
+          sidebarOverlay.classList.toggle("show");
+          document.body.style.overflow = sidebar.classList.contains("show")
+            ? "hidden"
+            : "";
         });
       }
 
       // Close sidebar when clicking overlay
       if (sidebarOverlay) {
-        sidebarOverlay.addEventListener('click', function() {
-          sidebar.classList.remove('show');
-          sidebarOverlay.classList.remove('show');
-          document.body.style.overflow = '';
+        sidebarOverlay.addEventListener("click", function () {
+          sidebar.classList.remove("show");
+          sidebarOverlay.classList.remove("show");
+          document.body.style.overflow = "";
         });
       }
 
       // Close sidebar when clicking on a link (mobile only)
-      document.querySelectorAll('.sidebar-custom .nav-link-custom').forEach(link => {
-        link.addEventListener('click', function() {
-          if (window.innerWidth <= 992) {
-            sidebar.classList.remove('show');
-            sidebarOverlay.classList.remove('show');
-            document.body.style.overflow = '';
-          }
+      document
+        .querySelectorAll(".sidebar-custom .nav-link-custom")
+        .forEach((link) => {
+          link.addEventListener("click", function () {
+            if (window.innerWidth <= 992) {
+              sidebar.classList.remove("show");
+              sidebarOverlay.classList.remove("show");
+              document.body.style.overflow = "";
+            }
+          });
         });
-      });
 
       // Handle window resize
-      window.addEventListener('resize', function() {
+      window.addEventListener("resize", function () {
         if (window.innerWidth > 992) {
-          sidebar.classList.remove('show');
-          sidebarOverlay.classList.remove('show');
-          document.body.style.overflow = '';
+          sidebar.classList.remove("show");
+          sidebarOverlay.classList.remove("show");
+          document.body.style.overflow = "";
         }
       });
     </script>

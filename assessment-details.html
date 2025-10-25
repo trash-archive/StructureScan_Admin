@@ -18,12 +18,10 @@
         position: relative;
       }
 
-      /* Prevent horizontal scroll */
       html {
         overflow-x: hidden;
       }
 
-      /* Fixed Sidebar Styles */
       .sidebar-custom {
         position: fixed;
         top: 0;
@@ -37,7 +35,6 @@
         transition: transform 0.3s ease;
       }
 
-      /* Main Content Adjustment */
       .main-content-wrapper {
         margin-left: 250px;
         min-height: 100vh;
@@ -47,7 +44,6 @@
         overflow-x: hidden;
       }
 
-      /* Navigation Links */
       .nav-link-custom {
         display: flex;
         align-items: center;
@@ -84,12 +80,10 @@
         color: #dc3545;
       }
 
-      /* Mobile Menu Toggle */
       .mobile-menu-toggle {
         display: none;
       }
 
-      /* Sidebar Overlay */
       .sidebar-overlay {
         position: fixed;
         top: 0;
@@ -101,7 +95,6 @@
         display: none;
       }
 
-      /* Responsive Design */
       @media (max-width: 992px) {
         .sidebar-custom {
           transform: translateX(-100%);
@@ -125,7 +118,6 @@
         }
       }
 
-      /* Image Grid Styling */
       .image-card-item {
         cursor: pointer;
         transition: transform 0.2s, box-shadow 0.2s;
@@ -209,7 +201,6 @@
         color: #084298;
       }
 
-      /* Modal Image Details Fixes */
       #modalImageDetails {
         word-wrap: break-word;
         overflow-wrap: break-word;
@@ -219,6 +210,51 @@
         word-break: break-all;
         display: block;
         line-height: 1.4;
+      }
+
+      /* Recommendation Card Styling */
+      .recommendation-card {
+        border-left: 4px solid #6c757d;
+        transition: all 0.2s ease;
+      }
+
+      .recommendation-card:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transform: translateX(2px);
+      }
+
+      .recommendation-card.severity-low {
+        border-left-color: #28a745;
+      }
+
+      .recommendation-card.severity-moderate {
+        border-left-color: #ffc107;
+      }
+
+      .recommendation-card.severity-high {
+        border-left-color: #dc3545;
+      }
+
+      .severity-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      .severity-low {
+        background-color: #d1e7dd;
+        color: #0f5132;
+      }
+
+      .severity-moderate {
+        background-color: #fff3cd;
+        color: #664d03;
+      }
+
+      .severity-high {
+        background-color: #f8d7da;
+        color: #842029;
       }
 
       @media (max-width: 576px) {
@@ -256,12 +292,9 @@
     </style>
   </head>
   <body>
-    <!-- Sidebar Overlay for Mobile -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- Sidebar -->
     <div class="sidebar-custom d-flex flex-column" id="sidebar">
-      <!-- Logo Section -->
       <div
         class="text-center py-4 border-bottom border-secondary border-opacity-25"
       >
@@ -274,7 +307,6 @@
         <small class="text-white-50">Admin Panel</small>
       </div>
 
-      <!-- Navigation Menu -->
       <ul class="nav flex-column px-3 py-3 flex-grow-1">
         <li class="nav-item mb-2">
           <a href="dashboard.html" class="nav-link-custom">
@@ -296,10 +328,7 @@
         </li>
       </ul>
 
-      <!-- Bottom Menu -->
-      <div
-        class="px-3 pb-3 border-top border-secondary border-opacity-25 pt-3"
-      >
+      <div class="px-3 pb-3 border-top border-secondary border-opacity-25 pt-3">
         <a href="profile.html" class="nav-link-custom mb-2">
           <i class="bi bi-person-circle"></i>
           <span>Profile</span>
@@ -311,9 +340,7 @@
       </div>
     </div>
 
-    <!-- Main Content -->
     <div class="main-content-wrapper p-4 bg-light">
-      <!-- Mobile Menu Toggle Button -->
       <button
         class="btn btn-primary mobile-menu-toggle mb-3"
         id="sidebarToggle"
@@ -322,23 +349,24 @@
         <i class="bi bi-list fs-5"></i> Menu
       </button>
 
-      <!-- Back Button -->
       <div class="mb-3">
         <button onclick="goBack()" class="btn btn-outline-secondary btn-sm">
           <i class="bi bi-arrow-left"></i> Back
         </button>
       </div>
 
-      <!-- Page Header -->
-      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+      <div
+        class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3"
+      >
         <div>
           <h2 class="mb-1">Assessment Details</h2>
-          <small class="text-muted text-break" id="assessmentId">Loading...</small>
+          <small class="text-muted text-break" id="assessmentId"
+            >Loading...</small
+          >
         </div>
       </div>
 
       <div class="row">
-        <!-- Main Column -->
         <div class="col-lg-10 mx-auto">
           <!-- User Information -->
           <div class="card border-0 shadow-sm mb-4">
@@ -379,7 +407,9 @@
                 <div class="col-md-6">
                   <p class="mb-2">
                     <strong>Assessment Name:</strong>
-                    <span id="assessmentName" class="text-break">Loading...</span>
+                    <span id="assessmentName" class="text-break"
+                      >Loading...</span
+                    >
                   </p>
                 </div>
                 <div class="col-md-6">
@@ -408,7 +438,6 @@
                 Information
               </h5>
 
-              <!-- Overall Risk - Prominent Display -->
               <div class="alert alert-light border mb-4 text-center py-3">
                 <h6 class="mb-2 text-uppercase fw-bold text-muted">
                   <i class="bi bi-exclamation-triangle-fill me-2"></i>Overall
@@ -470,12 +499,48 @@
             </div>
           </div>
 
+          <!-- ✅ NEW: Recommendations Section -->
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+              <h5 class="card-title mb-3">
+                <i class="bi bi-lightbulb text-warning me-2"></i>Recommendations
+              </h5>
+
+              <!-- Loading State -->
+              <div id="recommendationsLoading" class="text-center py-3">
+                <div
+                  class="spinner-border spinner-border-sm text-primary"
+                  role="status"
+                >
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 text-muted small">Loading recommendations...</p>
+              </div>
+
+              <!-- Recommendations Container -->
+              <div id="recommendationsContainer" class="d-none">
+                <div id="recommendationsList">
+                  <!-- Recommendations will be loaded here dynamically -->
+                </div>
+              </div>
+
+              <!-- No Recommendations Message -->
+              <div
+                id="noRecommendationsMessage"
+                class="alert alert-info d-none"
+                role="alert"
+              >
+                <i class="bi bi-info-circle me-2"></i>
+                No recommendations available for this assessment.
+              </div>
+            </div>
+          </div>
+
           <!-- Submitted Images Section -->
           <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
               <h5 class="card-title mb-3 fw-bold">Submitted Images</h5>
 
-              <!-- Loading State -->
               <div id="imagesLoading" class="text-center py-4">
                 <div class="spinner-border text-primary" role="status">
                   <span class="visually-hidden">Loading...</span>
@@ -483,13 +548,11 @@
                 <p class="mt-2 text-muted small">Loading images...</p>
               </div>
 
-              <!-- Images Container -->
               <div id="imagesContainer" class="d-none">
                 <div id="imagesGrid" class="row g-3">
                   <!-- Images will be loaded here dynamically -->
                 </div>
 
-                <!-- Analysis Info -->
                 <div class="mt-4 pt-3 border-top">
                   <p class="text-muted mb-1 small">
                     <i class="bi bi-clock me-1"></i>
@@ -504,7 +567,6 @@
                 </div>
               </div>
 
-              <!-- No Images Message -->
               <div
                 id="noImagesMessage"
                 class="alert alert-info d-none"
@@ -578,7 +640,6 @@
       </div>
     </div>
 
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -587,47 +648,46 @@
     <script src="js/firebase-config.js"></script>
     <script src="js/assessment-details.js"></script>
 
-    <!-- Sidebar Toggle Script -->
     <script>
-      const sidebarToggle = document.getElementById('sidebarToggle');
-      const sidebar = document.getElementById('sidebar');
-      const sidebarOverlay = document.getElementById('sidebarOverlay');
+      const sidebarToggle = document.getElementById("sidebarToggle");
+      const sidebar = document.getElementById("sidebar");
+      const sidebarOverlay = document.getElementById("sidebarOverlay");
 
-      // Toggle sidebar on mobile
       if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', function() {
-          sidebar.classList.toggle('show');
-          sidebarOverlay.classList.toggle('show');
-          document.body.style.overflow = sidebar.classList.contains('show') ? 'hidden' : '';
+        sidebarToggle.addEventListener("click", function () {
+          sidebar.classList.toggle("show");
+          sidebarOverlay.classList.toggle("show");
+          document.body.style.overflow = sidebar.classList.contains("show")
+            ? "hidden"
+            : "";
         });
       }
 
-      // Close sidebar when clicking overlay
       if (sidebarOverlay) {
-        sidebarOverlay.addEventListener('click', function() {
-          sidebar.classList.remove('show');
-          sidebarOverlay.classList.remove('show');
-          document.body.style.overflow = '';
+        sidebarOverlay.addEventListener("click", function () {
+          sidebar.classList.remove("show");
+          sidebarOverlay.classList.remove("show");
+          document.body.style.overflow = "";
         });
       }
 
-      // Close sidebar when clicking on a link (mobile only)
-      document.querySelectorAll('.sidebar-custom .nav-link-custom').forEach(link => {
-        link.addEventListener('click', function() {
-          if (window.innerWidth <= 992) {
-            sidebar.classList.remove('show');
-            sidebarOverlay.classList.remove('show');
-            document.body.style.overflow = '';
-          }
+      document
+        .querySelectorAll(".sidebar-custom .nav-link-custom")
+        .forEach((link) => {
+          link.addEventListener("click", function () {
+            if (window.innerWidth <= 992) {
+              sidebar.classList.remove("show");
+              sidebarOverlay.classList.remove("show");
+              document.body.style.overflow = "";
+            }
+          });
         });
-      });
 
-      // Handle window resize
-      window.addEventListener('resize', function() {
+      window.addEventListener("resize", function () {
         if (window.innerWidth > 992) {
-          sidebar.classList.remove('show');
-          sidebarOverlay.classList.remove('show');
-          document.body.style.overflow = '';
+          sidebar.classList.remove("show");
+          sidebarOverlay.classList.remove("show");
+          document.body.style.overflow = "";
         }
       });
     </script>
