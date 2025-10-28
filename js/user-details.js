@@ -1,20 +1,22 @@
-// USER-DETAILS.JS - Fixed with event delegation
+// ===== GLOBAL VARIABLES =====
+const ASSESSMENTS_PER_PAGE = 10; // Number of assessments per page
+let currentPage = 1; // Current pagination page
+let allAssessments = []; // Store all user assessments
+let currentUserId = null; // Current user being viewed
+let currentUserData = null; // Store current user data for modal use
 
-// Pagination settings
-const ASSESSMENTS_PER_PAGE = 10;
-let currentPage = 1;
-let allAssessments = [];
-let currentUserId = null;
-
-// Get userId from URL parameter
+// ===== GET USER ID FROM URL =====
+// Extract userId parameter from URL query string
 const urlParams = new URLSearchParams(window.location.search);
 currentUserId = urlParams.get("userId");
 
 console.log("USER-DETAILS.JS LOADED - Current User ID:", currentUserId);
 
-// Check if user is logged in and is admin
+// ===== AUTHENTICATION CHECK =====
+// Check if admin is logged in and has proper permissions
 firebase.auth().onAuthStateChanged(function (user) {
   if (!user) {
+    // No user logged in, redirect to login
     window.location.href = "index.html";
     return;
   }
@@ -26,27 +28,33 @@ firebase.auth().onAuthStateChanged(function (user) {
     .get()
     .then((doc) => {
       if (!doc.exists || !doc.data().isAdmin) {
+        // User is not admin, deny access
         alert("Access denied. Admin only.");
         firebase.auth().signOut();
         window.location.href = "index.html";
         return;
       }
 
-      // Load user details
+      // ✅ Load user details if userId exists
       if (currentUserId) {
         loadUserDetails(currentUserId);
       } else {
         alert("No user ID provided");
         window.location.href = "users.html";
       }
+    })
+    .catch((error) => {
+      console.error("Error checking admin status:", error);
     });
 });
 
-// Load user details
+// ===== LOAD USER DETAILS =====
+// Fetch and display user information and assessment history
 async function loadUserDetails(userId) {
   const db = firebase.firestore();
 
   try {
+    // Get user document
     const doc = await db.collection("users").doc(userId).get();
 
     if (!doc.exists) {
@@ -58,7 +66,8 @@ async function loadUserDetails(userId) {
     const userData = doc.data();
     currentUserData = userData; // Store for modal use
 
-    // ✅ Fixed: Set user basic info - Changed photoUrl1 to photoUrl
+    // ===== DISPLAY USER BASIC INFORMATION =====
+    // Set profile photo (use default avatar if no photo)
     const photoUrl =
       userData.photoUrl ||
       "https://ui-avatars.com/api/?name=" +
@@ -72,6 +81,8 @@ async function loadUserDetails(userId) {
     document.getElementById("userRole").textContent = userData.role || "User";
     document.getElementById("userEmail").textContent = userData.email || "N/A";
 
+    // ===== DISPLAY USER STATUS =====
+    // Check if user is suspended or active
     const status = userData.status || "active";
     const isSuspended = userData.isSuspended || false;
 
@@ -80,10 +91,11 @@ async function loadUserDetails(userId) {
         ? '<span class="badge bg-warning">Suspended</span>'
         : '<span class="badge bg-success">Active</span>';
 
-    // Update suspend button text based on current status
+    // Update suspend/unsuspend button based on current status
     updateSuspendButton(status === "suspended" || isSuspended);
 
-    // Load assessments
+    // ===== LOAD USER ASSESSMENTS =====
+    // Fetch all assessments from user's subcollection
     const assessmentsSnapshot = await db
       .collection("users")
       .doc(userId)
@@ -91,9 +103,11 @@ async function loadUserDetails(userId) {
       .orderBy("timestamp", "desc")
       .get();
 
+    // Update assessment count badge
     document.getElementById("userAssessments").textContent =
       assessmentsSnapshot.size;
 
+    // Store all assessments in array for pagination
     allAssessments = [];
     assessmentsSnapshot.forEach((doc) => {
       allAssessments.push({
@@ -102,6 +116,7 @@ async function loadUserDetails(userId) {
       });
     });
 
+    // Render first page of assessments
     renderAssessments();
     renderPagination();
   } catch (error) {
@@ -111,24 +126,30 @@ async function loadUserDetails(userId) {
   }
 }
 
-// Render assessments for current page
+// ===== RENDER ASSESSMENTS FOR CURRENT PAGE =====
+// Display assessments with pagination (10 per page)
 function renderAssessments() {
   const tableBody = document.getElementById("assessmentHistoryTable");
   const start = (currentPage - 1) * ASSESSMENTS_PER_PAGE;
   const end = start + ASSESSMENTS_PER_PAGE;
   const assessmentsToShow = allAssessments.slice(start, end);
 
+  // Check if there are assessments to display
   if (assessmentsToShow.length === 0) {
     tableBody.innerHTML =
       '<tr><td colspan="5" class="text-center py-4 text-muted">No assessments found</td></tr>';
     return;
   }
 
+  // Clear table and populate with assessments
   tableBody.innerHTML = "";
   assessmentsToShow.forEach((assessment) => {
+    // Get assessment name (fallback to buildingType or default)
     const assessmentName =
       assessment.assessmentName || assessment.buildingType || "Home Assessment";
     const assessmentId = assessment.id;
+
+    // Format date
     const dateSubmitted = assessment.timestamp || assessment.createdAt;
     const formattedDate = dateSubmitted
       ? formatDate(
@@ -138,11 +159,17 @@ function renderAssessments() {
         )
       : "N/A";
 
-    // Calculate issues
+    // ===== CALCULATE TOTAL ISSUES =====
+    // Try totalIssues field first, then calculate from detectionSummary
     let issuesCount = 0;
-    let riskLevel = "Low";
 
-    if (assessment.detectionSummary) {
+    if (
+      assessment.totalIssues !== undefined &&
+      assessment.totalIssues !== null
+    ) {
+      issuesCount = assessment.totalIssues;
+    } else if (assessment.detectionSummary) {
+      // Fallback: Calculate from detectionSummary
       const summary = assessment.detectionSummary;
 
       if (summary.paintDamage) {
@@ -162,17 +189,20 @@ function renderAssessments() {
         issuesCount += summary.algaeMoss.moderate || 0;
         issuesCount += summary.algaeMoss.low || 0;
       }
-    }
-
-    if (assessment.issuesFound !== undefined) {
+    } else if (assessment.issuesFound !== undefined) {
       issuesCount = assessment.issuesFound;
     }
+
+    // ===== DETERMINE RISK LEVEL =====
+    // Get risk level from assessment or calculate based on issues
+    let riskLevel = "Low";
 
     if (assessment.riskLevel) {
       riskLevel = assessment.riskLevel;
     } else if (assessment.overallRisk) {
       riskLevel = assessment.overallRisk;
     } else {
+      // Calculate risk based on issue count
       if (issuesCount >= 5) {
         riskLevel = "High";
       } else if (issuesCount >= 2) {
@@ -180,16 +210,22 @@ function renderAssessments() {
       }
     }
 
+    // Determine badge color based on risk level
     let riskBadgeClass = "bg-success";
-    if (riskLevel.toLowerCase() === "high") {
+    const riskLower = riskLevel.toLowerCase();
+
+    if (riskLower.includes("high")) {
       riskBadgeClass = "bg-danger";
-    } else if (
-      riskLevel.toLowerCase() === "medium" ||
-      riskLevel.toLowerCase() === "moderate"
-    ) {
+    } else if (riskLower.includes("medium") || riskLower.includes("moderate")) {
       riskBadgeClass = "bg-warning";
     }
 
+    // Format risk level display (avoid "Risk Risk" duplication)
+    const displayRiskLevel = riskLower.includes("risk")
+      ? riskLevel
+      : `${riskLevel} Risk`;
+
+    // ===== CREATE TABLE ROW =====
     const row = `
       <tr>
         <td>
@@ -207,7 +243,7 @@ function renderAssessments() {
           }
         </td>
         <td>
-          <span class="badge ${riskBadgeClass}">${riskLevel} Risk</span>
+          <span class="badge ${riskBadgeClass}">${displayRiskLevel}</span>
         </td>
         <td>
           <button class="btn btn-sm btn-primary view-assessment-btn" data-assessment-id="${assessmentId}">
@@ -219,7 +255,8 @@ function renderAssessments() {
     tableBody.innerHTML += row;
   });
 
-  // Add event listeners to all view buttons using event delegation
+  // ===== ADD EVENT LISTENERS TO VIEW BUTTONS =====
+  // Use event delegation to handle dynamically added buttons
   document.querySelectorAll(".view-assessment-btn").forEach((button) => {
     button.addEventListener("click", function (e) {
       e.preventDefault();
@@ -230,7 +267,7 @@ function renderAssessments() {
     });
   });
 
-  // Update pagination info
+  // ===== UPDATE PAGINATION INFO =====
   const totalAssessments = allAssessments.length;
   const showing = assessmentsToShow.length;
   document.getElementById("paginationInfo").textContent = `Showing ${
@@ -238,11 +275,13 @@ function renderAssessments() {
   }-${start + showing} of ${totalAssessments} assessments`;
 }
 
-// Render pagination
+// ===== RENDER PAGINATION CONTROLS =====
+// Display page numbers and previous/next buttons
 function renderPagination() {
   const totalPages = Math.ceil(allAssessments.length / ASSESSMENTS_PER_PAGE);
   const pagination = document.getElementById("pagination");
 
+  // Hide pagination if only 1 page
   if (totalPages <= 1) {
     pagination.innerHTML = "";
     return;
@@ -261,7 +300,7 @@ function renderPagination() {
     </li>
   `;
 
-  // Page numbers
+  // Page numbers (show first, last, current, and adjacent pages)
   for (let i = 1; i <= totalPages; i++) {
     if (
       i === 1 ||
@@ -292,7 +331,8 @@ function renderPagination() {
   pagination.innerHTML = html;
 }
 
-// Change page
+// ===== CHANGE PAGE HANDLER =====
+// Navigate to a different page of assessments
 function changePage(page) {
   const totalPages = Math.ceil(allAssessments.length / ASSESSMENTS_PER_PAGE);
   if (page < 1 || page > totalPages) return;
@@ -301,10 +341,12 @@ function changePage(page) {
   renderAssessments();
   renderPagination();
 
+  // Scroll to top smoothly
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-// Format date helper
+// ===== DATE FORMATTING HELPER =====
+// Format Firestore timestamp to readable date (e.g., "Jan 1, 2025")
 function formatDate(date) {
   if (!date || !(date instanceof Date)) return "N/A";
 
@@ -329,29 +371,29 @@ function formatDate(date) {
   return `${month} ${day}, ${year}`;
 }
 
-// Edit user
+// ===== EDIT USER =====
+// Navigate to edit user page
 function editUser() {
   window.location.href = `edit-user.html?userId=${currentUserId}`;
 }
 
-// Global variable to store current user data for modal
-let currentUserData = null;
-
-// Update suspend button based on user status
+// ===== UPDATE SUSPEND BUTTON =====
+// Change button text and color based on user status
 function updateSuspendButton(isSuspended) {
   const suspendBtn = document.querySelector('button[onclick="suspendUser()"]');
   if (suspendBtn) {
     if (isSuspended) {
       suspendBtn.innerHTML = '<i class="bi bi-check-circle"></i> Unsuspend';
-      suspendBtn.className = "btn btn-success mb-2";
+      suspendBtn.className = "btn btn-success";
     } else {
       suspendBtn.innerHTML = '<i class="bi bi-pause-circle"></i> Suspend';
-      suspendBtn.className = "btn btn-warning mb-2";
+      suspendBtn.className = "btn btn-warning";
     }
   }
 }
 
-// Open suspension modal
+// ===== OPEN SUSPENSION MODAL =====
+// Show modal for suspending or unsuspending user
 function suspendUser() {
   const db = firebase.firestore();
 
@@ -412,7 +454,8 @@ function suspendUser() {
     });
 }
 
-// Confirm suspend/unsuspend action
+// ===== CONFIRM SUSPEND/UNSUSPEND ACTION =====
+// Update user status in Firestore based on action
 function confirmSuspendAction() {
   const db = firebase.firestore();
 
@@ -425,7 +468,7 @@ function confirmSuspendAction() {
         userData.status === "suspended" || userData.isSuspended;
 
       if (isSuspended) {
-        // Unsuspend user
+        // ===== UNSUSPEND USER =====
         const reason = document.getElementById("unsuspendReason").value.trim();
 
         db.collection("users")
@@ -454,7 +497,7 @@ function confirmSuspendAction() {
             showToast("Error unsuspending user: " + error.message, true);
           });
       } else {
-        // Suspend user
+        // ===== SUSPEND USER =====
         const reason = document.getElementById("suspendReason").value.trim();
 
         db.collection("users")
@@ -486,31 +529,8 @@ function confirmSuspendAction() {
     });
 }
 
-// Delete user
-function deleteUser() {
-  if (
-    confirm(
-      "Are you sure you want to delete this user? This action cannot be undone."
-    )
-  ) {
-    const db = firebase.firestore();
-    db.collection("users")
-      .doc(currentUserId)
-      .delete()
-      .then(() => {
-        showToast("User deleted successfully!", false);
-        logActivity("user_deleted", `Deleted user: ${currentUserId}`);
-        setTimeout(() => {
-          window.location.href = "users.html";
-        }, 1500);
-      })
-      .catch((error) => {
-        showToast("Error deleting user: " + error.message, true);
-      });
-  }
-}
-
-// View assessment details - NOW PROPERLY CALLED
+// ===== VIEW ASSESSMENT DETAILS =====
+// Navigate to assessment details page with proper context
 function viewAssessmentDetails(assessmentId) {
   console.log("==========================================");
   console.log("VIEW ASSESSMENT DETAILS FUNCTION CALLED!");
@@ -524,7 +544,7 @@ function viewAssessmentDetails(assessmentId) {
     `Viewed assessment: ${assessmentId} for user: ${currentUserId}`
   );
 
-  // Store navigation context
+  // Store navigation context for back button
   sessionStorage.setItem("returnPage", "user-detail");
   sessionStorage.setItem("returnUserId", currentUserId);
 
@@ -532,7 +552,7 @@ function viewAssessmentDetails(assessmentId) {
   console.log("- returnPage:", sessionStorage.getItem("returnPage"));
   console.log("- returnUserId:", sessionStorage.getItem("returnUserId"));
 
-  // Build the URL - MUST BE assessment-details.html
+  // Build the URL to assessment-details page
   const targetUrl = `assessment-details.html?userId=${encodeURIComponent(
     currentUserId
   )}&assessmentId=${encodeURIComponent(assessmentId)}`;
@@ -541,11 +561,12 @@ function viewAssessmentDetails(assessmentId) {
   console.log("Navigating to assessment-details.html...");
   console.log("==========================================");
 
-  // Force navigation
+  // Navigate to assessment details
   window.location.href = targetUrl;
 }
 
-// Toast function
+// ===== TOAST NOTIFICATION =====
+// Show success or error toast message
 function showToast(msg, isError = false) {
   const toastElem = document.getElementById("savedToast");
   toastElem.querySelector(".toast-body").innerHTML =
@@ -558,20 +579,26 @@ function showToast(msg, isError = false) {
   toast.show();
 }
 
-// Activity logging
+// ===== ACTIVITY LOGGING =====
+// Log admin actions to Firestore activityLog collection
 function logActivity(action, description) {
   const db = firebase.firestore();
   const user = firebase.auth().currentUser;
 
-  db.collection("activityLog").add({
-    action: action,
-    description: description,
-    adminEmail: user ? user.email : "Unknown",
-    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-  });
+  db.collection("activityLog")
+    .add({
+      action: action,
+      description: description,
+      adminEmail: user ? user.email : "Unknown",
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    })
+    .catch((error) => {
+      console.error("Error logging activity:", error);
+    });
 }
 
-// Logout
+// ===== LOGOUT HANDLER =====
+// Handle admin logout
 document.getElementById("logoutBtn").addEventListener("click", function (e) {
   e.preventDefault();
   firebase
@@ -581,5 +608,3 @@ document.getElementById("logoutBtn").addEventListener("click", function (e) {
       window.location.href = "index.html";
     });
 });
-
-console.log("USER-DETAILS.JS FULLY LOADED AND READY");

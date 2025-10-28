@@ -257,6 +257,129 @@
         color: #842029;
       }
 
+      /* ✅ Professional Detection Summary Styles */
+      .detection-stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+        color: white;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        transition: transform 0.2s;
+      }
+
+      .detection-stat-card:hover {
+        transform: translateY(-3px);
+      }
+
+      .detection-stat-card .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0.5rem 0;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .detection-stat-card .stat-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.95;
+        font-weight: 600;
+      }
+
+      .issue-type-box {
+        background: white;
+        border-radius: 10px;
+        padding: 1.25rem;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.2s;
+        border: 2px solid transparent;
+      }
+
+      .issue-type-box:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      }
+
+      .issue-type-box.crack-box {
+        border-color: #dc3545;
+      }
+
+      .issue-type-box.paint-box {
+        border-color: #ffc107;
+      }
+
+      .issue-type-box.algae-box {
+        border-color: #17a2b8;
+      }
+
+      .issue-type-box .icon-wrapper {
+        width: 50px;
+        height: 50px;
+        margin: 0 auto 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+      }
+
+      .issue-type-box.crack-box .icon-wrapper {
+        background: rgba(220, 53, 69, 0.1);
+      }
+
+      .issue-type-box.paint-box .icon-wrapper {
+        background: rgba(255, 193, 7, 0.1);
+      }
+
+      .issue-type-box.algae-box .icon-wrapper {
+        background: rgba(23, 162, 184, 0.1);
+      }
+
+      .issue-type-box .type-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .issue-type-box .type-count {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0;
+      }
+
+      .severity-bar-container {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      .severity-item {
+        margin-bottom: 1rem;
+      }
+
+      .severity-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .severity-label-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+      }
+
+      .severity-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+      }
+
+      .severity-count {
+        font-size: 1.1rem;
+        font-weight: 700;
+      }
+
       @media (max-width: 576px) {
         .main-content-wrapper {
           padding: 1rem !important;
@@ -287,6 +410,14 @@
         .image-status-badge {
           font-size: 0.65rem;
           padding: 0.2rem 0.4rem;
+        }
+
+        .detection-stat-card .stat-number {
+          font-size: 2rem;
+        }
+
+        .issue-type-box .type-count {
+          font-size: 1.5rem;
         }
       }
     </style>
@@ -386,12 +517,6 @@
                     <span id="userEmail" class="text-break">Loading...</span>
                   </p>
                 </div>
-                <div class="col-md-6">
-                  <p class="mb-2">
-                    <strong>Date Created:</strong>
-                    <span id="dateCreated">Loading...</span>
-                  </p>
-                </div>
               </div>
             </div>
           </div>
@@ -414,10 +539,6 @@
                 </div>
                 <div class="col-md-6">
                   <p class="mb-2">
-                    <strong>Submission Date:</strong>
-                    <span id="submissionDate">Loading...</span>
-                  </p>
-                  <p class="mb-2">
                     <strong>Status:</strong>
                     <span class="badge bg-success">Completed</span>
                   </p>
@@ -425,6 +546,175 @@
                     <strong>Report Generated:</strong>
                     <span id="reportGenerated">Loading...</span>
                   </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ✅ REDESIGNED: Detection Summary Section -->
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+              <h5 class="card-title mb-4">
+                <i class="bi bi-graph-up-arrow text-success me-2"></i>Detection
+                Summary
+              </h5>
+
+              <div class="row g-3 mb-4">
+                <!-- Total Issues Card -->
+                <div class="col-md-4">
+                  <div class="detection-stat-card">
+                    <div class="stat-label">TOTAL ISSUES DETECTED</div>
+                    <div class="stat-number" id="totalIssuesDetected">0</div>
+                    <i class="bi bi-exclamation-circle-fill fs-3"></i>
+                  </div>
+                </div>
+
+                <!-- Issue Breakdown by Type -->
+                <div class="col-md-8">
+                  <div class="row g-3 h-100">
+                    <div class="col-4">
+                      <div class="issue-type-box crack-box h-100">
+                        <div class="icon-wrapper">
+                          <i
+                            class="bi bi-exclamation-triangle-fill text-danger fs-3"
+                          ></i>
+                        </div>
+                        <div class="type-label text-danger">Cracks</div>
+                        <div class="type-count text-danger" id="crackCount">
+                          0
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-4">
+                      <div class="issue-type-box paint-box h-100">
+                        <div class="icon-wrapper">
+                          <i class="bi bi-droplet-fill text-warning fs-3"></i>
+                        </div>
+                        <div class="type-label text-warning">Paint Damage</div>
+                        <div class="type-count text-warning" id="paintCount">
+                          0
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-4">
+                      <div class="issue-type-box algae-box h-100">
+                        <div class="icon-wrapper">
+                          <i class="bi bi-moisture text-info fs-3"></i>
+                        </div>
+                        <div class="type-label text-info">Algae/Moss</div>
+                        <div class="type-count text-info" id="algaeCount">
+                          0
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ✅ IMPROVED: Severity Distribution with Progress Bars -->
+              <div class="severity-bar-container">
+                <h6 class="text-uppercase small mb-3 fw-bold text-muted">
+                  <i class="bi bi-bar-chart-fill me-2"></i>Severity Distribution
+                </h6>
+
+                <!-- High Severity -->
+                <div class="severity-item">
+                  <div class="severity-label-row">
+                    <span class="severity-label text-danger">
+                      <i class="bi bi-exclamation-circle-fill me-1"></i>High
+                      Severity
+                    </span>
+                    <span
+                      class="severity-count text-danger"
+                      id="highSeverityCount"
+                      >0</span
+                    >
+                  </div>
+                  <div class="position-relative">
+                    <div
+                      class="progress"
+                      style="height: 24px; border-radius: 8px"
+                    >
+                      <div
+                        class="progress-bar bg-danger"
+                        role="progressbar"
+                        id="highSeverityBar"
+                        style="width: 0%; transition: width 0.5s ease"
+                        aria-valuenow="0"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                      >
+                        <span class="fw-bold" id="highSeverityPercent">0%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Moderate Severity -->
+                <div class="severity-item">
+                  <div class="severity-label-row">
+                    <span class="severity-label text-warning">
+                      <i class="bi bi-dash-circle-fill me-1"></i>Moderate
+                      Severity
+                    </span>
+                    <span
+                      class="severity-count text-warning"
+                      id="moderateSeverityCount"
+                      >0</span
+                    >
+                  </div>
+                  <div class="position-relative">
+                    <div
+                      class="progress"
+                      style="height: 24px; border-radius: 8px"
+                    >
+                      <div
+                        class="progress-bar bg-warning text-dark"
+                        role="progressbar"
+                        id="moderateSeverityBar"
+                        style="width: 0%; transition: width 0.5s ease"
+                        aria-valuenow="0"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                      >
+                        <span class="fw-bold" id="moderateSeverityPercent"
+                          >0%</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Low Severity -->
+                <div class="severity-item">
+                  <div class="severity-label-row">
+                    <span class="severity-label text-success">
+                      <i class="bi bi-check-circle-fill me-1"></i>Low Severity
+                    </span>
+                    <span
+                      class="severity-count text-success"
+                      id="lowSeverityCount"
+                      >0</span
+                    >
+                  </div>
+                  <div class="position-relative">
+                    <div
+                      class="progress"
+                      style="height: 24px; border-radius: 8px"
+                    >
+                      <div
+                        class="progress-bar bg-success"
+                        role="progressbar"
+                        id="lowSeverityBar"
+                        style="width: 0%; transition: width 0.5s ease"
+                        aria-valuenow="0"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                      >
+                        <span class="fw-bold" id="lowSeverityPercent">0%</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -499,7 +789,7 @@
             </div>
           </div>
 
-          <!-- ✅ NEW: Recommendations Section -->
+          <!-- Recommendations Section -->
           <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
               <h5 class="card-title mb-3">
@@ -585,8 +875,10 @@
     <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="imageModalTitle">Image Preview</h5>
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold" id="imageModalTitle">
+              <i class="bi bi-image-fill text-primary me-2"></i>Image Details
+            </h5>
             <button
               type="button"
               class="btn-close"
@@ -595,20 +887,90 @@
             ></button>
           </div>
           <div class="modal-body">
-            <div class="row">
-              <div class="col-lg-8 text-center">
-                <img
-                  id="modalPreviewImage"
-                  src=""
-                  alt="Preview"
-                  class="img-fluid rounded"
-                  style="max-width: 100%; max-height: 70vh; object-fit: contain"
-                />
+            <div class="row g-4">
+              <!-- Image Preview Column -->
+              <div class="col-lg-7">
+                <div class="border rounded p-2 bg-light">
+                  <img
+                    id="modalPreviewImage"
+                    src=""
+                    alt="Preview"
+                    class="img-fluid rounded"
+                    style="
+                      max-width: 100%;
+                      max-height: 65vh;
+                      object-fit: contain;
+                      display: block;
+                      margin: 0 auto;
+                    "
+                  />
+                </div>
+                <div class="mt-3">
+                  <a
+                    href="#"
+                    id="modalImageLink"
+                    target="_blank"
+                    class="btn btn-outline-primary btn-sm w-100"
+                  >
+                    <i class="bi bi-box-arrow-up-right me-2"></i>Open Full Image
+                    in New Tab
+                  </a>
+                </div>
               </div>
-              <div class="col-lg-4">
-                <h6 class="fw-bold mb-3">Image Details</h6>
-                <div id="modalImageDetails">
-                  <!-- Details will be loaded here -->
+
+              <!-- Details Column -->
+              <div class="col-lg-5">
+                <!-- Image Info Card -->
+                <div class="card border-0 shadow-sm mb-3">
+                  <div class="card-body">
+                    <h6 class="card-title fw-bold mb-3">
+                      <i class="bi bi-info-circle-fill text-info me-2"></i>Image
+                      Information
+                    </h6>
+                    <div class="mb-2">
+                      <small class="text-muted d-block mb-1"
+                        >Image Number</small
+                      >
+                      <span class="badge bg-primary" id="modalImageNumber"
+                        >1</span
+                      >
+                    </div>
+                    <div class="mb-2">
+                      <small class="text-muted d-block mb-1">Filename</small>
+                      <small class="text-break d-block" id="modalImageFilename"
+                        >image_0.jpg</small
+                      >
+                    </div>
+                    <div>
+                      <small class="text-muted d-block mb-1">Risk Level</small>
+                      <span class="badge bg-secondary" id="modalImageRisk"
+                        >N/A</span
+                      >
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Issues Detected Card -->
+                <div class="card border-0 shadow-sm">
+                  <div class="card-body">
+                    <h6 class="card-title fw-bold mb-3">
+                      <i
+                        class="bi bi-exclamation-triangle-fill text-warning me-2"
+                      ></i
+                      >Issues Detected
+                    </h6>
+                    <div id="modalIssuesContainer">
+                      <!-- Issues will be loaded here dynamically -->
+                    </div>
+                    <div id="modalNoIssues" class="text-center py-3 d-none">
+                      <i
+                        class="bi bi-check-circle-fill text-success fs-2 mb-2"
+                      ></i>
+                      <p class="text-muted mb-0 small">
+                        No issues detected in this image
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

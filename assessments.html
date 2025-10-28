@@ -4,15 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Assessment Management - StructureScan Admin</title>
+    <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <!-- Bootstrap Icons -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
     />
     <style>
+      /* ===== BODY & HTML STYLES ===== */
       body {
         overflow-x: hidden;
         position: relative;
@@ -23,7 +26,8 @@
         overflow-x: hidden;
       }
 
-      /* Fixed Sidebar Styles */
+      /* ===== SIDEBAR STYLES ===== */
+      /* Fixed Sidebar */
       .sidebar-custom {
         position: fixed;
         top: 0;
@@ -37,15 +41,19 @@
         transition: transform 0.3s ease;
       }
 
-      /* Main Content Adjustment */
+      /* ===== MAIN CONTENT STYLES ===== */
+      /* Main Content Area - adjusted for sidebar */
       .main-content-wrapper {
         margin-left: 250px;
         min-height: 100vh;
         transition: margin-left 0.3s ease;
         width: calc(100% - 250px);
+        max-width: 100%;
+        overflow-x: hidden;
       }
 
-      /* Navigation Links */
+      /* ===== NAVIGATION LINK STYLES ===== */
+      /* Custom Navigation Links */
       .nav-link-custom {
         display: flex;
         align-items: center;
@@ -82,12 +90,13 @@
         color: #dc3545;
       }
 
-      /* Mobile Menu Toggle */
+      /* ===== MOBILE MENU STYLES ===== */
+      /* Mobile Menu Toggle Button */
       .mobile-menu-toggle {
         display: none;
       }
 
-      /* Sidebar Overlay */
+      /* Sidebar Overlay for Mobile */
       .sidebar-overlay {
         position: fixed;
         top: 0;
@@ -99,7 +108,24 @@
         display: none;
       }
 
-      /* Responsive Design */
+      /* ===== PAGINATION STYLES ===== */
+      /* Custom Pagination Styling */
+      .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #dee2e6;
+      }
+
+      .pagination-info {
+        color: #6c757d;
+        font-size: 0.875rem;
+      }
+
+      /* ===== RESPONSIVE DESIGN ===== */
+      /* Tablet and Mobile Screens */
       @media (max-width: 992px) {
         .sidebar-custom {
           transform: translateX(-100%);
@@ -123,6 +149,7 @@
         }
       }
 
+      /* Small Mobile Screens */
       @media (max-width: 576px) {
         .main-content-wrapper {
           padding: 1rem !important;
@@ -136,14 +163,19 @@
         .sidebar-custom.show {
           transform: translateX(0);
         }
+
+        /* Hide table columns on mobile */
+        .table-responsive .hide-mobile {
+          display: none;
+        }
       }
     </style>
   </head>
   <body>
-    <!-- Sidebar Overlay for Mobile -->
+    <!-- ===== SIDEBAR OVERLAY FOR MOBILE ===== -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- Sidebar -->
+    <!-- ===== SIDEBAR NAVIGATION ===== -->
     <div class="sidebar-custom d-flex flex-column" id="sidebar">
       <!-- Logo Section -->
       <div
@@ -158,7 +190,7 @@
         <small class="text-white-50">Admin Panel</small>
       </div>
 
-      <!-- Navigation Menu -->
+      <!-- Navigation Menu Links -->
       <ul class="nav flex-column px-3 py-3 flex-grow-1">
         <li class="nav-item mb-2">
           <a href="dashboard.html" class="nav-link-custom">
@@ -173,6 +205,7 @@
           </a>
         </li>
         <li class="nav-item mb-2">
+          <!-- Active page indicator -->
           <a href="assessments.html" class="nav-link-custom active">
             <i class="bi bi-clipboard-check"></i>
             <span>Assessment Management</span>
@@ -180,7 +213,7 @@
         </li>
       </ul>
 
-      <!-- Bottom Menu -->
+      <!-- Bottom Menu (Profile & Logout) -->
       <div class="px-3 pb-3 border-top border-secondary border-opacity-25 pt-3">
         <a href="profile.html" class="nav-link-custom mb-2">
           <i class="bi bi-person-circle"></i>
@@ -193,9 +226,9 @@
       </div>
     </div>
 
-    <!-- Main Content -->
+    <!-- ===== MAIN CONTENT AREA ===== -->
     <div class="main-content-wrapper p-4 bg-light">
-      <!-- Mobile Menu Toggle Button -->
+      <!-- Mobile Menu Toggle Button (visible on small screens) -->
       <button
         class="btn btn-primary mobile-menu-toggle mb-3"
         id="sidebarToggle"
@@ -204,7 +237,7 @@
         <i class="bi bi-list fs-5"></i> Menu
       </button>
 
-      <!-- Header -->
+      <!-- Page Header with Search -->
       <div
         class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3"
       >
@@ -212,6 +245,7 @@
           <h2 class="mb-1">Assessment Management</h2>
           <small class="text-muted">View and manage all assessments</small>
         </div>
+        <!-- Search Bar -->
         <div class="input-group" style="max-width: 300px">
           <span class="input-group-text bg-white">
             <i class="bi bi-search"></i>
@@ -225,12 +259,33 @@
         </div>
       </div>
 
-      <!-- Assessments Table -->
+      <!-- ===== STATS CARD SECTION ===== -->
+      <!-- Total Assessments Card (following dashboard design) -->
+      <div class="row mb-4 g-3">
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-2">
+                <div class="bg-success bg-opacity-10 rounded p-2 me-2">
+                  <i class="bi bi-clipboard-check-fill text-success fs-4"></i>
+                </div>
+                <h6 class="text-muted mb-0">Total Assessments</h6>
+              </div>
+              <!-- Total count displayed here -->
+              <h2 class="mb-1" id="totalAssessmentsCount">0</h2>
+              <p class="mb-0 small text-muted">Completed assessments</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== ASSESSMENTS TABLE SECTION ===== -->
       <div class="card border-0 shadow-sm">
         <div class="card-header bg-white">
           <h5 class="mb-0">All Assessments</h5>
         </div>
         <div class="card-body">
+          <!-- Responsive Table Wrapper -->
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
               <thead>
@@ -238,11 +293,13 @@
                   <th>Assessment ID</th>
                   <th>User</th>
                   <th>Date</th>
-                  <th>Status</th>
+                  <!-- ✅ CHANGED: Status → Total Issues -->
+                  <th>Total Issues</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody id="assessmentsTableBody">
+                <!-- Loading state -->
                 <tr>
                   <td colspan="5" class="text-center py-4">
                     <div class="spinner-border text-primary" role="status">
@@ -254,69 +311,75 @@
               </tbody>
             </table>
           </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Assessment Details Modal -->
-    <div class="modal fade" id="assessmentModal" tabindex="-1">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Assessment Details</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-            ></button>
-          </div>
-          <div class="modal-body" id="assessmentDetails">
-            <div class="text-center py-4">
-              <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-              <p class="mt-2 text-muted">Loading details...</p>
+          <!-- ===== PAGINATION SECTION ===== -->
+          <!-- Pagination Controls (10 items per page) -->
+          <div class="pagination-container">
+            <!-- Pagination Info (e.g., "Showing 1-10 of 21") -->
+            <div class="pagination-info" id="paginationInfo">
+              Showing 0-0 of 0 assessments
             </div>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Close
-            </button>
+            <!-- Pagination Buttons -->
+            <nav aria-label="Assessment pagination">
+              <ul class="pagination mb-0">
+                <!-- Previous Button -->
+                <li class="page-item" id="prevPageItem">
+                  <a
+                    class="page-link"
+                    href="#"
+                    id="prevPage"
+                    aria-label="Previous"
+                  >
+                    <span aria-hidden="true">&laquo; Previous</span>
+                  </a>
+                </li>
+                <!-- Next Button -->
+                <li class="page-item" id="nextPageItem">
+                  <a class="page-link" href="#" id="nextPage" aria-label="Next">
+                    <span aria-hidden="true">Next &raquo;</span>
+                  </a>
+                </li>
+              </ul>
+            </nav>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Firebase SDK -->
+    <!-- ===== FIREBASE SDK SCRIPTS ===== -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Firebase Config -->
     <script src="js/firebase-config.js"></script>
+
+    <!-- Assessments Page Logic -->
     <script src="js/assessments.js"></script>
 
-    <!-- Sidebar Toggle Script -->
+    <!-- ===== SIDEBAR TOGGLE SCRIPT ===== -->
     <script>
+      // Get sidebar elements
       const sidebarToggle = document.getElementById("sidebarToggle");
       const sidebar = document.getElementById("sidebar");
       const sidebarOverlay = document.getElementById("sidebarOverlay");
 
-      // Toggle sidebar on mobile
+      // Toggle sidebar on mobile when menu button is clicked
       if (sidebarToggle) {
         sidebarToggle.addEventListener("click", function () {
           sidebar.classList.toggle("show");
           sidebarOverlay.classList.toggle("show");
+          // Prevent body scroll when sidebar is open
           document.body.style.overflow = sidebar.classList.contains("show")
             ? "hidden"
             : "";
         });
       }
 
-      // Close sidebar when clicking overlay
+      // Close sidebar when clicking on overlay
       if (sidebarOverlay) {
         sidebarOverlay.addEventListener("click", function () {
           sidebar.classList.remove("show");
@@ -325,7 +388,7 @@
         });
       }
 
-      // Close sidebar when clicking on a link (mobile only)
+      // Close sidebar when clicking on a navigation link (mobile only)
       document
         .querySelectorAll(".sidebar-custom .nav-link-custom")
         .forEach((link) => {
@@ -338,7 +401,7 @@
           });
         });
 
-      // Handle window resize
+      // Handle window resize - auto-close sidebar on desktop
       window.addEventListener("resize", function () {
         if (window.innerWidth > 992) {
           sidebar.classList.remove("show");

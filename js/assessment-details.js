@@ -88,15 +88,13 @@ async function loadAssessmentDetails(userId, assessmentId) {
       "assessmentId"
     ).textContent = `Assessment ID: ${assessmentId}`;
 
+    // User Information - REMOVED dateCreated
     document.getElementById("userName").textContent =
       userData && userData.fullName ? userData.fullName : "N/A";
     document.getElementById("userEmail").textContent =
       userData && userData.email ? userData.email : "N/A";
-    document.getElementById("dateCreated").textContent =
-      userData && userData.createdAt
-        ? formatDate(userData.createdAt.toDate())
-        : "N/A";
 
+    // Assessment Overview - REMOVED submissionDate
     document.getElementById("assessmentName").textContent =
       data.assessmentName || data.buildingType || "N/A";
 
@@ -112,17 +110,18 @@ async function loadAssessmentDetails(userId, assessmentId) {
     } else if (data.date) {
       subDate = data.date;
     }
-    document.getElementById("submissionDate").textContent = subDate
-      ? subDate instanceof Date
-        ? formatDateTime(subDate)
-        : subDate
-      : "N/A";
+
+    // Only set reportGenerated (removed submissionDate)
     document.getElementById("reportGenerated").textContent = subDate
       ? subDate instanceof Date
         ? formatDateTime(subDate)
         : subDate
       : "N/A";
 
+    // ✅ NEW: Load Detection Summary Data
+    loadDetectionSummary(data);
+
+    // Overall Risk Assessment
     const overallRisk = data.overallRisk || "N/A";
     const riskElement = document.getElementById("overallRisk");
     if (riskElement) {
@@ -199,7 +198,106 @@ async function loadAssessmentDetails(userId, assessmentId) {
   }
 }
 
-// ✅ FINAL: Display recommendations with inline labels
+// ✅ IMPROVED: Load Detection Summary with Animated Bars
+function loadDetectionSummary(data) {
+  console.log("🔍 Loading detection summary data");
+
+  // Total Issues Detected
+  const totalIssues = data.totalIssues || 0;
+  document.getElementById("totalIssuesDetected").textContent = totalIssues;
+
+  // Issue Breakdown by Type
+  const crackTotal =
+    (data.crackHighCount || 0) +
+    (data.crackModerateCount || 0) +
+    (data.crackLowCount || 0);
+  const paintTotal =
+    (data.paintHighCount || 0) +
+    (data.paintModerateCount || 0) +
+    (data.paintLowCount || 0);
+  const algaeTotal =
+    (data.algaeHighCount || 0) +
+    (data.algaeModerateCount || 0) +
+    (data.algaeLowCount || 0);
+
+  document.getElementById("crackCount").textContent = crackTotal;
+  document.getElementById("paintCount").textContent = paintTotal;
+  document.getElementById("algaeCount").textContent = algaeTotal;
+
+  // Severity Distribution
+  const highSeverity =
+    (data.crackHighCount || 0) +
+    (data.paintHighCount || 0) +
+    (data.algaeHighCount || 0);
+  const moderateSeverity =
+    (data.crackModerateCount || 0) +
+    (data.paintModerateCount || 0) +
+    (data.algaeModerateCount || 0);
+  const lowSeverity =
+    (data.crackLowCount || 0) +
+    (data.paintLowCount || 0) +
+    (data.algaeLowCount || 0);
+
+  document.getElementById("highSeverityCount").textContent = highSeverity;
+  document.getElementById("moderateSeverityCount").textContent =
+    moderateSeverity;
+  document.getElementById("lowSeverityCount").textContent = lowSeverity;
+
+  // ✅ IMPROVED: Animate severity bars with percentages displayed inside
+  const totalSeverity = highSeverity + moderateSeverity + lowSeverity;
+
+  if (totalSeverity > 0) {
+    const highPercentage = Math.round((highSeverity / totalSeverity) * 100);
+    const moderatePercentage = Math.round(
+      (moderateSeverity / totalSeverity) * 100
+    );
+    const lowPercentage = Math.round((lowSeverity / totalSeverity) * 100);
+
+    // Animate bars with delay and update percentage text
+    setTimeout(() => {
+      document.getElementById("highSeverityBar").style.width =
+        highPercentage + "%";
+      document.getElementById("highSeverityPercent").textContent =
+        highPercentage + "%";
+    }, 100);
+
+    setTimeout(() => {
+      document.getElementById("moderateSeverityBar").style.width =
+        moderatePercentage + "%";
+      document.getElementById("moderateSeverityPercent").textContent =
+        moderatePercentage + "%";
+    }, 200);
+
+    setTimeout(() => {
+      document.getElementById("lowSeverityBar").style.width =
+        lowPercentage + "%";
+      document.getElementById("lowSeverityPercent").textContent =
+        lowPercentage + "%";
+    }, 300);
+  } else {
+    // If no severity issues, set all bars to 0%
+    document.getElementById("highSeverityBar").style.width = "0%";
+    document.getElementById("highSeverityPercent").textContent = "0%";
+
+    document.getElementById("moderateSeverityBar").style.width = "0%";
+    document.getElementById("moderateSeverityPercent").textContent = "0%";
+
+    document.getElementById("lowSeverityBar").style.width = "0%";
+    document.getElementById("lowSeverityPercent").textContent = "0%";
+  }
+
+  console.log("✅ Detection summary loaded:", {
+    totalIssues,
+    byType: { cracks: crackTotal, paint: paintTotal, algae: algaeTotal },
+    bySeverity: {
+      high: highSeverity,
+      moderate: moderateSeverity,
+      low: lowSeverity,
+    },
+  });
+}
+
+// ✅ IMPROVED: Display recommendations with deduplication/merging
 function loadRecommendations(data) {
   const recommendationsLoading = document.getElementById(
     "recommendationsLoading"
@@ -230,7 +328,8 @@ function loadRecommendations(data) {
 
     recommendationsList.innerHTML = "";
 
-    let totalActions = 0;
+    // ✅ NEW: Use a Map to group duplicate recommendations
+    const recommendationsMap = new Map();
 
     // Loop through each assessment (each image)
     data.assessments.forEach((assessment, assessmentIndex) => {
@@ -280,49 +379,78 @@ function loadRecommendations(data) {
         const description = actionsMap.description || "No description";
         const severity = actionsMap.severity || "LOW";
 
-        console.log(`      📌 Action:`, {
-          actions: actionsValue,
-          title,
-          description,
-          severity,
-        });
+        // ✅ NEW: Create unique key based on title + severity to group duplicates
+        const uniqueKey = `${title
+          .toLowerCase()
+          .trim()}_${severity.toLowerCase()}`;
 
-        // Determine severity class
-        let severityClass = "severity-low";
-        const severityLower = String(severity).toLowerCase();
-
-        if (severityLower === "high") {
-          severityClass = "severity-high";
-        } else if (severityLower === "moderate" || severityLower === "medium") {
-          severityClass = "severity-moderate";
+        if (recommendationsMap.has(uniqueKey)) {
+          // If this recommendation already exists, increment the count
+          const existing = recommendationsMap.get(uniqueKey);
+          existing.count++;
+          console.log(
+            `    🔄 Merged duplicate recommendation: ${title} (count: ${existing.count})`
+          );
+        } else {
+          // New unique recommendation, add to map
+          recommendationsMap.set(uniqueKey, {
+            actions: actionsValue,
+            title: title,
+            description: description,
+            severity: severity,
+            count: 1,
+          });
+          console.log(`    ✅ Added new recommendation: ${title}`);
         }
+      });
+    });
 
-        // Create inline-style recommendation card
-        const cardDiv = document.createElement("div");
-        cardDiv.className = `card recommendation-card ${severityClass} mb-3`;
-        cardDiv.innerHTML = `
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-              <div class="flex-grow-1">
-                <p class="mb-2"><strong>Actions:</strong> ${
-                  Array.isArray(actionsValue)
-                    ? actionsValue.join(", ")
-                    : actionsValue
-                }</p>
-                <p class="mb-2"><strong>Description:</strong> ${description}</p>
-                <p class="mb-0"><strong>Title:</strong> ${title}</p>
-              </div>
-              <div class="text-end ms-3">
-                <strong>Severity:</strong><br>
-                <span class="severity-badge ${severityClass} mt-1">${severity.toUpperCase()}</span>
-              </div>
+    console.log(`✅ Total unique recommendations: ${recommendationsMap.size}`);
+
+    // Now display the merged recommendations
+    let totalActions = 0;
+    recommendationsMap.forEach((rec) => {
+      const { actions, title, description, severity, count } = rec;
+
+      // Determine severity class
+      let severityClass = "severity-low";
+      const severityLower = String(severity).toLowerCase();
+
+      if (severityLower === "high") {
+        severityClass = "severity-high";
+      } else if (severityLower === "moderate" || severityLower === "medium") {
+        severityClass = "severity-moderate";
+      }
+
+      // ✅ NEW: Show count if more than 1 instance detected
+      const countBadge =
+        count > 1
+          ? `<span class="badge bg-secondary ms-2">${count}x detected</span>`
+          : "";
+
+      // Create inline-style recommendation card
+      const cardDiv = document.createElement("div");
+      cardDiv.className = `card recommendation-card ${severityClass} mb-3`;
+      cardDiv.innerHTML = `
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div class="flex-grow-1">
+              <p class="mb-2"><strong>Actions:</strong> ${
+                Array.isArray(actions) ? actions.join(", ") : actions
+              }</p>
+              <p class="mb-2"><strong>Description:</strong> ${description}</p>
+              <p class="mb-0"><strong>Title:</strong> ${title} ${countBadge}</p>
+            </div>
+            <div class="text-end ms-3">
+              <strong>Severity:</strong><br>
+              <span class="severity-badge ${severityClass} mt-1">${severity.toUpperCase()}</span>
             </div>
           </div>
-        `;
+        </div>
+      `;
 
-        recommendationsList.appendChild(cardDiv);
-        totalActions++;
-      });
+      recommendationsList.appendChild(cardDiv);
+      totalActions++;
     });
 
     console.log(`✅ Total actions displayed: ${totalActions}`);
@@ -337,7 +465,7 @@ function loadRecommendations(data) {
     recommendationsLoading.classList.add("d-none");
     recommendationsContainer.classList.remove("d-none");
 
-    console.log("✅ Recommendations loaded successfully");
+    console.log("✅ Recommendations loaded successfully with deduplication");
   } catch (error) {
     console.error("❌ Error loading recommendations:", error);
     recommendationsLoading.classList.add("d-none");
@@ -348,6 +476,9 @@ function loadRecommendations(data) {
     `;
   }
 }
+
+// ✅ IMPROVED: Store assessment data globally for modal access
+let assessmentsData = [];
 
 async function loadSubmittedImages(data, assessmentDate) {
   const imagesLoading = document.getElementById("imagesLoading");
@@ -366,6 +497,9 @@ async function loadSubmittedImages(data, assessmentDate) {
       noImagesMessage.classList.remove("d-none");
       return;
     }
+
+    // ✅ NEW: Store assessments globally for modal access
+    assessmentsData = data.assessments;
 
     imagesGrid.innerHTML = "";
 
@@ -398,10 +532,9 @@ async function loadSubmittedImages(data, assessmentDate) {
       const colDiv = document.createElement("div");
       colDiv.className = "col-6 col-sm-4 col-md-3 col-lg-2";
 
+      // ✅ CHANGED: Pass index only, we'll get full data from global array
       colDiv.innerHTML = `
-        <div class="image-card-item" onclick="openImageModal(${index}, '${imageUri}', '${filename}', '${statusText}', '${
-        assessment.damageType || "N/A"
-      }')">
+        <div class="image-card-item" onclick="openImageModal(${index})">
           <div class="image-placeholder-box">
             ${
               imageUri
@@ -441,31 +574,134 @@ async function loadSubmittedImages(data, assessmentDate) {
   }
 }
 
-function openImageModal(index, imageUrl, filename, status, damageType) {
+// ✅ COMPLETELY REDESIGNED: Modal with multiple issues support
+function openImageModal(index) {
+  console.log("🖼️ Opening modal for image", index + 1);
+
+  // Get assessment data from global array
+  const assessment = assessmentsData[index];
+
+  if (!assessment) {
+    console.error("Assessment data not found for index:", index);
+    return;
+  }
+
   const modal = new bootstrap.Modal(document.getElementById("imageModal"));
   const modalImage = document.getElementById("modalPreviewImage");
-  const modalTitle = document.getElementById("imageModalTitle");
-  const modalDetails = document.getElementById("modalImageDetails");
+  const modalImageNumber = document.getElementById("modalImageNumber");
+  const modalImageFilename = document.getElementById("modalImageFilename");
+  const modalImageRisk = document.getElementById("modalImageRisk");
+  const modalImageLink = document.getElementById("modalImageLink");
+  const modalIssuesContainer = document.getElementById("modalIssuesContainer");
+  const modalNoIssues = document.getElementById("modalNoIssues");
 
-  modalTitle.textContent = `Image ${index + 1} Details`;
-
+  // Set image
+  const imageUri = assessment.imageUri || "";
   modalImage.onerror = function () {
     this.src = "https://via.placeholder.com/800x600?text=Image+Loading+Failed";
   };
   modalImage.src =
-    imageUrl || "https://via.placeholder.com/800x600?text=No+Image";
+    imageUri || "https://via.placeholder.com/800x600?text=No+Image";
 
-  modalDetails.innerHTML = `
-    <p class="mb-3"><strong>Filename:</strong><br><small class="text-muted">${filename}</small></p>
-    <hr>
-    <p class="mb-3"><strong>Damage Type:</strong><br>${damageType}</p>
-    <p class="mb-3"><strong>Status:</strong><br><span class="badge bg-secondary">${status}</span></p>
-    <p class="mb-0"><strong>Image Number:</strong><br>${index + 1}</p>
-    <hr>
-    <a href="${imageUrl}" target="_blank" class="btn btn-sm btn-primary w-100 mt-2">
-      <i class="bi bi-box-arrow-up-right me-1"></i> Open in New Tab
-    </a>
-  `;
+  // Set image link
+  modalImageLink.href = imageUri || "#";
+
+  // Set image number
+  modalImageNumber.textContent = index + 1;
+
+  // Set filename
+  const filename = imageUri
+    ? decodeURIComponent(imageUri.split("/").pop().split("?")[0])
+    : `IMG_${String(index + 1).padStart(3, "0")}.jpg`;
+  modalImageFilename.textContent = filename;
+
+  // Set risk level
+  const imageRisk = assessment.imageRisk || assessment.damageLevel || "N/A";
+  modalImageRisk.textContent = imageRisk;
+  modalImageRisk.className = "badge";
+
+  const riskLower = imageRisk.toLowerCase();
+  if (riskLower.includes("high")) {
+    modalImageRisk.classList.add("bg-danger");
+  } else if (riskLower.includes("moderate") || riskLower.includes("medium")) {
+    modalImageRisk.classList.add("bg-warning", "text-dark");
+  } else if (riskLower.includes("low")) {
+    modalImageRisk.classList.add("bg-success");
+  } else {
+    modalImageRisk.classList.add("bg-secondary");
+  }
+
+  // ✅ NEW: Display all detected issues from detectedIssues array
+  const detectedIssues = assessment.detectedIssues || [];
+
+  console.log("Detected issues for image", index + 1, ":", detectedIssues);
+
+  if (detectedIssues.length === 0) {
+    // No issues detected
+    modalIssuesContainer.classList.add("d-none");
+    modalNoIssues.classList.remove("d-none");
+  } else {
+    // Display all issues
+    modalIssuesContainer.classList.remove("d-none");
+    modalNoIssues.classList.add("d-none");
+    modalIssuesContainer.innerHTML = "";
+
+    detectedIssues.forEach((issue, issueIndex) => {
+      const issueType = issue.type || "Unknown";
+      const issueLevel = issue.level || "N/A";
+      const issueConfidence = issue.confidence || 0;
+      const confidencePercent = Math.round(issueConfidence * 100);
+
+      // Determine badge color based on issue type
+      let typeBadgeClass = "bg-secondary";
+      const typeLower = issueType.toLowerCase();
+      if (typeLower.includes("crack")) {
+        typeBadgeClass = "bg-danger";
+      } else if (typeLower.includes("paint")) {
+        typeBadgeClass = "bg-warning text-dark";
+      } else if (typeLower.includes("algae") || typeLower.includes("moss")) {
+        typeBadgeClass = "bg-info";
+      }
+
+      // Determine severity badge
+      let severityBadgeClass = "bg-secondary";
+      const levelLower = issueLevel.toLowerCase();
+      if (levelLower.includes("high")) {
+        severityBadgeClass = "bg-danger";
+      } else if (
+        levelLower.includes("moderate") ||
+        levelLower.includes("medium")
+      ) {
+        severityBadgeClass = "bg-warning text-dark";
+      } else if (levelLower.includes("low")) {
+        severityBadgeClass = "bg-success";
+      }
+
+      const issueCard = `
+        <div class="border rounded p-3 mb-2 bg-light">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+              <span class="badge ${typeBadgeClass} mb-1">${issueType}</span>
+              <small class="d-block text-muted">Issue ${issueIndex + 1} of ${
+        detectedIssues.length
+      }</small>
+            </div>
+            <span class="badge ${severityBadgeClass}">${issueLevel} Severity</span>
+          </div>
+          <div class="mt-2">
+            <small class="text-muted">Confidence Level:</small>
+            <div class="progress" style="height: 20px;">
+              <div class="progress-bar ${typeBadgeClass}" role="progressbar" style="width: ${confidencePercent}%;" aria-valuenow="${confidencePercent}" aria-valuemin="0" aria-valuemax="100">
+                ${confidencePercent}%
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      modalIssuesContainer.innerHTML += issueCard;
+    });
+  }
 
   modal.show();
 }

@@ -1,414 +1,443 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard - StructureScan Admin</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
-  <style>
-    body {
-      overflow-x: hidden;
-      position: relative;
-    }
-
-    /* Prevent horizontal scroll */
-    html {
-      overflow-x: hidden;
-    }
-
-    /* Fixed Sidebar Styles */
-    .sidebar-custom {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 250px;
-      height: 100vh;
-      background-color: #1a1d29;
-      overflow-y: auto;
-      z-index: 1000;
-      transition: left 0.3s ease;
-    }
-
-    /* Main Content Adjustment */
-    .main-content-wrapper {
-      margin-left: 250px;
-      min-height: 100vh;
-      transition: margin-left 0.3s ease;
-      max-width: 100%;
-      overflow-x: hidden;
-    }
-
-    /* Navigation Links */
-    .nav-link-custom {
-      display: flex;
-      align-items: center;
-      padding: 0.75rem 1rem;
-      color: rgba(255, 255, 255, 0.7);
-      text-decoration: none;
-      border-radius: 8px;
-      transition: all 0.2s;
-      font-size: 0.95rem;
-    }
-
-    .nav-link-custom i {
-      font-size: 1.2rem;
-      margin-right: 0.75rem;
-      width: 20px;
-    }
-
-    .nav-link-custom:hover {
-      background-color: rgba(255, 255, 255, 0.05);
-      color: #fff;
-    }
-
-    .nav-link-custom.active {
-      background-color: #007bff;
-      color: #fff;
-    }
-
-    .nav-link-custom.text-danger {
-      color: rgba(220, 53, 69, 0.9);
-    }
-
-    .nav-link-custom.text-danger:hover {
-      background-color: rgba(220, 53, 69, 0.1);
-      color: #dc3545;
-    }
-
-    /* Quick Link Cards */
-    .quick-link-card {
-      transition: transform 0.2s, box-shadow 0.2s;
-      cursor: pointer;
-    }
-
-    .quick-link-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-    }
-
-    /* Activity List Item Fixes */
-    .activity-item {
-      overflow: hidden;
-    }
-
-    .activity-content {
-      min-width: 0;
-      flex: 1;
-    }
-
-    .activity-title {
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-      word-break: break-word;
-    }
-
-    .activity-meta {
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-    }
-
-    /* Mobile Menu Toggle */
-    .mobile-menu-toggle {
-      display: none;
-    }
-
-    /* Sidebar Overlay */
-    .sidebar-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 999;
-      display: none;
-    }
-
-    /* Responsive Design */
-    @media (max-width: 992px) {
-      .sidebar-custom {
-        left: -100%;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - StructureScan Admin</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+    />
+    <style>
+      body {
+        overflow-x: hidden;
+        position: relative;
       }
 
-      .sidebar-custom.show {
+      /* Prevent horizontal scroll */
+      html {
+        overflow-x: hidden;
+      }
+
+      /* Fixed Sidebar Styles */
+      .sidebar-custom {
+        position: fixed;
+        top: 0;
         left: 0;
-      }
-
-      .main-content-wrapper {
-        margin-left: 0;
-      }
-
-      .mobile-menu-toggle {
-        display: block;
-      }
-
-      .sidebar-overlay.show {
-        display: block;
-      }
-    }
-
-    @media (max-width: 576px) {
-      .main-content-wrapper {
-        padding: 1rem !important;
-      }
-
-      .sidebar-custom {
         width: 250px;
-        left: -100%;
+        height: 100vh;
+        background-color: #1a1d29;
+        overflow-y: auto;
+        z-index: 1000;
+        transition: left 0.3s ease;
       }
 
-      .sidebar-custom.show {
-        left: 0;
+      /* Main Content Adjustment */
+      .main-content-wrapper {
+        margin-left: 250px;
+        min-height: 100vh;
+        transition: margin-left 0.3s ease;
+        max-width: 100%;
+        overflow-x: hidden;
       }
 
+      /* Navigation Links */
+      .nav-link-custom {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        border-radius: 8px;
+        transition: all 0.2s;
+        font-size: 0.95rem;
+      }
+
+      .nav-link-custom i {
+        font-size: 1.2rem;
+        margin-right: 0.75rem;
+        width: 20px;
+      }
+
+      .nav-link-custom:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+        color: #fff;
+      }
+
+      .nav-link-custom.active {
+        background-color: #007bff;
+        color: #fff;
+      }
+
+      .nav-link-custom.text-danger {
+        color: rgba(220, 53, 69, 0.9);
+      }
+
+      .nav-link-custom.text-danger:hover {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+      }
+
+      /* Quick Link Cards */
+      .quick-link-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+      }
+
+      .quick-link-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+      }
+
+      /* Activity List Item Fixes */
       .activity-item {
-        padding: 0.75rem !important;
+        overflow: hidden;
       }
-    }
-  </style>
-</head>
 
-<body>
-  <!-- Sidebar Overlay for Mobile -->
-  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+      .activity-content {
+        min-width: 0;
+        flex: 1;
+      }
 
-  <!-- Sidebar -->
-  <div class="sidebar-custom d-flex flex-column" id="sidebar">
-    <!-- Logo Section -->
-    <div class="text-center py-4 border-bottom border-secondary border-opacity-25">
-      <div class="d-flex align-items-center justify-content-center mb-2">
-        <div class="bg-primary rounded-3 p-2 me-2">
-          <i class="bi bi-building text-white fs-5"></i>
+      .activity-title {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word;
+      }
+
+      .activity-meta {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+
+      /* Mobile Menu Toggle */
+      .mobile-menu-toggle {
+        display: none;
+      }
+
+      /* Sidebar Overlay */
+      .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        display: none;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 992px) {
+        .sidebar-custom {
+          left: -100%;
+        }
+
+        .sidebar-custom.show {
+          left: 0;
+        }
+
+        .main-content-wrapper {
+          margin-left: 0;
+        }
+
+        .mobile-menu-toggle {
+          display: block;
+        }
+
+        .sidebar-overlay.show {
+          display: block;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .main-content-wrapper {
+          padding: 1rem !important;
+        }
+
+        .sidebar-custom {
+          width: 250px;
+          left: -100%;
+        }
+
+        .sidebar-custom.show {
+          left: 0;
+        }
+
+        .activity-item {
+          padding: 0.75rem !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar-custom d-flex flex-column" id="sidebar">
+      <!-- Logo Section -->
+      <div
+        class="text-center py-4 border-bottom border-secondary border-opacity-25"
+      >
+        <div class="d-flex align-items-center justify-content-center mb-2">
+          <div class="bg-primary rounded-3 p-2 me-2">
+            <i class="bi bi-building text-white fs-5"></i>
+          </div>
+          <h5 class="text-white mb-0 fw-bold">StructureScan</h5>
         </div>
-        <h5 class="text-white mb-0 fw-bold">StructureScan</h5>
+        <small class="text-white-50">Admin Panel</small>
       </div>
-      <small class="text-white-50">Admin Panel</small>
-    </div>
 
-    <!-- Navigation Menu -->
-    <ul class="nav flex-column px-3 py-3 flex-grow-1">
-      <li class="nav-item mb-2">
-        <a href="dashboard.html" class="nav-link-custom active">
-          <i class="bi bi-speedometer2"></i>
-          <span>Dashboard</span>
+      <!-- Navigation Menu -->
+      <ul class="nav flex-column px-3 py-3 flex-grow-1">
+        <li class="nav-item mb-2">
+          <a href="dashboard.html" class="nav-link-custom active">
+            <i class="bi bi-speedometer2"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item mb-2">
+          <a href="users.html" class="nav-link-custom">
+            <i class="bi bi-people"></i>
+            <span>User Management</span>
+          </a>
+        </li>
+        <li class="nav-item mb-2">
+          <a href="assessments.html" class="nav-link-custom">
+            <i class="bi bi-clipboard-check"></i>
+            <span>Assessment Management</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- Bottom Menu -->
+      <div class="px-3 pb-3 border-top border-secondary border-opacity-25 pt-3">
+        <a href="profile.html" class="nav-link-custom mb-2">
+          <i class="bi bi-person-circle"></i>
+          <span>Profile</span>
         </a>
-      </li>
-      <li class="nav-item mb-2">
-        <a href="users.html" class="nav-link-custom">
-          <i class="bi bi-people"></i>
-          <span>User Management</span>
-        </a>
-      </li>
-      <li class="nav-item mb-2">
-        <a href="assessments.html" class="nav-link-custom">
-          <i class="bi bi-clipboard-check"></i>
-          <span>Assessment Management</span>
-        </a>
-      </li>
-    </ul>
-
-    <!-- Bottom Menu -->
-    <div class="px-3 pb-3 border-top border-secondary border-opacity-25 pt-3">
-      <a href="profile.html" class="nav-link-custom mb-2">
-        <i class="bi bi-person-circle"></i>
-        <span>Profile</span>
-      </a>
-      <a href="#" id="logoutBtn" class="nav-link-custom text-danger">
-        <i class="bi bi-box-arrow-right"></i>
-        <span>Logout</span>
-      </a>
-    </div>
-  </div>
-
-  <!-- Main Content -->
-  <div class="main-content-wrapper p-4 bg-light">
-    <!-- Mobile Menu Toggle Button -->
-    <button class="btn btn-primary mobile-menu-toggle mb-3" id="sidebarToggle" type="button">
-      <i class="bi bi-list fs-5"></i> Menu
-    </button>
-
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-      <div>
-        <h2 class="mb-1">Dashboard Overview</h2>
-        <small class="text-muted">Welcome to StructureScan admin page</small>
-      </div>
-      <div class="d-flex align-items-center">
-        <strong id="adminName" class="me-3">admin</strong>
-        <div id="adminAvatar"
-          class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
-          style="width: 40px; height: 40px">
-          <i class="bi bi-person-fill"></i>
-        </div>
-      </div>
-    </div>
-
-    <!-- Stats Cards -->
-    <div class="row mb-4 g-3">
-      <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body">
-            <div class="d-flex align-items-center mb-2">
-              <div class="bg-primary bg-opacity-10 rounded p-2 me-2">
-                <i class="bi bi-people-fill text-primary fs-4"></i>
-              </div>
-              <h6 class="text-muted mb-0">Total Users</h6>
-            </div>
-            <h2 class="mb-1" id="totalUsers">0</h2>
-            <p class="mb-0 small text-muted">Registered users</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body">
-            <div class="d-flex align-items-center mb-2">
-              <div class="bg-success bg-opacity-10 rounded p-2 me-2">
-                <i class="bi bi-clipboard-check-fill text-success fs-4"></i>
-              </div>
-              <h6 class="text-muted mb-0">Total Assessments</h6>
-            </div>
-            <h2 class="mb-1" id="totalAssessments">0</h2>
-            <p class="mb-0 small text-muted">Completed assessments</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body">
-            <div class="d-flex align-items-center mb-2">
-              <div class="bg-warning bg-opacity-10 rounded p-2 me-2">
-                <i class="bi bi-activity text-warning fs-4"></i>
-              </div>
-              <h6 class="text-muted mb-0">Recent Activity</h6>
-            </div>
-            <h2 class="mb-1" id="recentActivityCount">0</h2>
-            <p class="mb-0 small text-muted">Last 24 hours</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Quick Links Section -->
-    <div class="mb-4">
-      <h5 class="mb-3">Quick Links</h5>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <div class="card border-0 shadow-sm quick-link-card">
-            <div class="card-body d-flex align-items-center">
-              <div class="bg-primary bg-opacity-10 rounded p-3 me-3">
-                <i class="bi bi-people-fill text-primary fs-3"></i>
-              </div>
-              <div class="flex-grow-1">
-                <h6 class="mb-1 fw-bold">User Management</h6>
-                <p class="mb-2 small text-muted">
-                  Manage user accounts and modify profiles
-                </p>
-                <a href="users.html" class="text-primary text-decoration-none small">
-                  View All <i class="bi bi-arrow-right"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="card border-0 shadow-sm quick-link-card">
-            <div class="card-body d-flex align-items-center">
-              <div class="bg-success bg-opacity-10 rounded p-3 me-3">
-                <i class="bi bi-clipboard-data-fill text-success fs-3"></i>
-              </div>
-              <div class="flex-grow-1">
-                <h6 class="mb-1 fw-bold">Assessment Management</h6>
-                <p class="mb-2 small text-muted">
-                  Review and manage assessments
-                </p>
-                <a href="assessments.html" class="text-success text-decoration-none small">
-                  View All <i class="bi bi-arrow-right"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Latest Activity -->
-    <div class="card border-0 shadow-sm">
-      <div class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <h5 class="mb-0">Latest Activity</h5>
-        <a href="activity-log.html" class="btn btn-primary btn-sm">
-          View All Activity
+        <a href="#" id="logoutBtn" class="nav-link-custom text-danger">
+          <i class="bi bi-box-arrow-right"></i>
+          <span>Logout</span>
         </a>
       </div>
-      <div class="card-body p-0">
-        <div class="list-group list-group-flush" id="activityList">
-          <div class="list-group-item activity-item">
-            <div class="d-flex align-items-center gap-2">
-              <div class="spinner-border spinner-border-sm text-primary flex-shrink-0" role="status">
-                <span class="visually-hidden">Loading...</span>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content-wrapper p-4 bg-light">
+      <!-- Mobile Menu Toggle Button -->
+      <button
+        class="btn btn-primary mobile-menu-toggle mb-3"
+        id="sidebarToggle"
+        type="button"
+      >
+        <i class="bi bi-list fs-5"></i> Menu
+      </button>
+
+      <!-- Header -->
+      <div
+        class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3"
+      >
+        <div>
+          <h2 class="mb-1">Dashboard Overview</h2>
+          <small class="text-muted">Welcome to StructureScan admin page</small>
+        </div>
+        <div class="d-flex align-items-center">
+          <strong id="adminName" class="me-3">admin</strong>
+          <div
+            id="adminAvatar"
+            class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+            style="width: 40px; height: 40px"
+          >
+            <i class="bi bi-person-fill"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="row mb-4 g-3">
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-2">
+                <div class="bg-primary bg-opacity-10 rounded p-2 me-2">
+                  <i class="bi bi-people-fill text-primary fs-4"></i>
+                </div>
+                <h6 class="text-muted mb-0">Total Users</h6>
               </div>
-              <span class="activity-content">Loading activity...</span>
+              <h2 class="mb-1" id="totalUsers">0</h2>
+              <p class="mb-0 small text-muted">Registered users</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-2">
+                <div class="bg-success bg-opacity-10 rounded p-2 me-2">
+                  <i class="bi bi-clipboard-check-fill text-success fs-4"></i>
+                </div>
+                <h6 class="text-muted mb-0">Total Assessments</h6>
+              </div>
+              <h2 class="mb-1" id="totalAssessments">0</h2>
+              <p class="mb-0 small text-muted">Completed assessments</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-2">
+                <div class="bg-warning bg-opacity-10 rounded p-2 me-2">
+                  <i class="bi bi-activity text-warning fs-4"></i>
+                </div>
+                <h6 class="text-muted mb-0">Recent Activity</h6>
+              </div>
+              <h2 class="mb-1" id="recentActivityCount">0</h2>
+              <p class="mb-0 small text-muted">Last 24 hours</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Links Section -->
+      <div class="mb-4">
+        <h5 class="mb-3">Quick Links</h5>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="card border-0 shadow-sm quick-link-card">
+              <div class="card-body d-flex align-items-center">
+                <div class="bg-primary bg-opacity-10 rounded p-3 me-3">
+                  <i class="bi bi-people-fill text-primary fs-3"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-1 fw-bold">User Management</h6>
+                  <p class="mb-2 small text-muted">
+                    Manage user accounts and modify profiles
+                  </p>
+                  <a
+                    href="users.html"
+                    class="text-primary text-decoration-none small"
+                  >
+                    View All <i class="bi bi-arrow-right"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card border-0 shadow-sm quick-link-card">
+              <div class="card-body d-flex align-items-center">
+                <div class="bg-success bg-opacity-10 rounded p-3 me-3">
+                  <i class="bi bi-clipboard-data-fill text-success fs-3"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-1 fw-bold">Assessment Management</h6>
+                  <p class="mb-2 small text-muted">
+                    Review and manage assessments
+                  </p>
+                  <a
+                    href="assessments.html"
+                    class="text-success text-decoration-none small"
+                  >
+                    View All <i class="bi bi-arrow-right"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Latest Activity -->
+      <div class="card border-0 shadow-sm">
+        <div
+          class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap gap-2"
+        >
+          <h5 class="mb-0">Latest Activity</h5>
+          <a href="activity-log.html" class="btn btn-primary btn-sm">
+            View All Activity
+          </a>
+        </div>
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush" id="activityList">
+            <div class="list-group-item activity-item">
+              <div class="d-flex align-items-center gap-2">
+                <div
+                  class="spinner-border spinner-border-sm text-primary flex-shrink-0"
+                  role="status"
+                >
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <span class="activity-content">Loading activity...</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="js/firebase-config.js"></script>
-  <script src="js/dashboard.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/dashboard.js"></script>
 
-  <!-- Sidebar Toggle Script -->
-  <script>
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const sidebar = document.getElementById('sidebar');
-    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    <!-- Sidebar Toggle Script -->
+    <script>
+      const sidebarToggle = document.getElementById("sidebarToggle");
+      const sidebar = document.getElementById("sidebar");
+      const sidebarOverlay = document.getElementById("sidebarOverlay");
 
-    // Toggle sidebar on mobile
-    if (sidebarToggle) {
-      sidebarToggle.addEventListener('click', function () {
-        sidebar.classList.toggle('show');
-        sidebarOverlay.classList.toggle('show');
-        document.body.style.overflow = sidebar.classList.contains('show') ? 'hidden' : '';
-      });
-    }
+      // Toggle sidebar on mobile
+      if (sidebarToggle) {
+        sidebarToggle.addEventListener("click", function () {
+          sidebar.classList.toggle("show");
+          sidebarOverlay.classList.toggle("show");
+          document.body.style.overflow = sidebar.classList.contains("show")
+            ? "hidden"
+            : "";
+        });
+      }
 
-    // Close sidebar when clicking overlay
-    if (sidebarOverlay) {
-      sidebarOverlay.addEventListener('click', function () {
-        sidebar.classList.remove('show');
-        sidebarOverlay.classList.remove('show');
-        document.body.style.overflow = '';
-      });
-    }
+      // Close sidebar when clicking overlay
+      if (sidebarOverlay) {
+        sidebarOverlay.addEventListener("click", function () {
+          sidebar.classList.remove("show");
+          sidebarOverlay.classList.remove("show");
+          document.body.style.overflow = "";
+        });
+      }
 
-    // Close sidebar when clicking on a link (mobile only)
-    document.querySelectorAll('.sidebar-custom .nav-link-custom').forEach(link => {
-      link.addEventListener('click', function () {
-        if (window.innerWidth <= 992) {
-          sidebar.classList.remove('show');
-          sidebarOverlay.classList.remove('show');
-          document.body.style.overflow = '';
+      // Close sidebar when clicking on a link (mobile only)
+      document
+        .querySelectorAll(".sidebar-custom .nav-link-custom")
+        .forEach((link) => {
+          link.addEventListener("click", function () {
+            if (window.innerWidth <= 992) {
+              sidebar.classList.remove("show");
+              sidebarOverlay.classList.remove("show");
+              document.body.style.overflow = "";
+            }
+          });
+        });
+
+      // Handle window resize
+      window.addEventListener("resize", function () {
+        if (window.innerWidth > 992) {
+          sidebar.classList.remove("show");
+          sidebarOverlay.classList.remove("show");
+          document.body.style.overflow = "";
         }
       });
-    });
-
-    // Handle window resize
-    window.addEventListener('resize', function () {
-      if (window.innerWidth > 992) {
-        sidebar.classList.remove('show');
-        sidebarOverlay.classList.remove('show');
-        document.body.style.overflow = '';
-      }
-    });
-  </script>
-</body>
-
+    </script>
+  </body>
 </html>
